@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/table";
 import { Eye, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { TableSkeleton } from "@/components/shared/TableSkeleton";
 
 const mockEleves = [
   { id: 1, matricule: "EDU-2025-0001", nom: "Kouame Aya Marie", initials: "KA", classe: "Terminale D", sexe: "F", statut: "Inscrit", paiement: "Complet" },
@@ -23,7 +25,20 @@ const mockEleves = [
   { id: 6, matricule: "EDU-2025-0006", nom: "Coulibaly Aminata", initials: "CA", classe: "5eme C", sexe: "F", statut: "Inscrit", paiement: "Complet" },
 ];
 
+// Simulation de l'appel API (a remplacer par fetch/axios vers NestJS plus tard)
+const fetchEleves = async () => {
+  return new Promise<typeof mockEleves>((resolve) => {
+    setTimeout(() => {
+      resolve(mockEleves);
+    }, 2000); // Delai de 2 secondes pour bien voir le Skeleton
+  });
+};
+
 export default function GestionElevesPage() {
+  const { data: eleves, isLoading } = useQuery({
+    queryKey: ['eleves'],
+    queryFn: fetchEleves,
+  });
   return (
     <div className="space-y-6">
       <PageHeader 
@@ -60,68 +75,72 @@ export default function GestionElevesPage() {
         ]}
       />
 
-      <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader className="bg-muted/50">
-              <TableRow>
-                <TableHead className="w-[150px] font-semibold">MATRICULE</TableHead>
-                <TableHead className="font-semibold">NOM & PRENOM</TableHead>
-                <TableHead className="font-semibold">CLASSE</TableHead>
-                <TableHead className="font-semibold">SEXE</TableHead>
-                <TableHead className="font-semibold">STATUT</TableHead>
-                <TableHead className="font-semibold">PAIEMENT</TableHead>
-                <TableHead className="text-right font-semibold">ACTIONS</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {mockEleves.map((eleve) => (
-                <TableRow key={eleve.id} className="hover:bg-muted/50 transition-colors">
-                  <TableCell className="font-medium text-muted-foreground">{eleve.matricule}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 font-medium text-xs">
-                        {eleve.initials}
-                      </div>
-                      <span className="font-medium">{eleve.nom}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>{eleve.classe}</TableCell>
-                  <TableCell>{eleve.sexe}</TableCell>
-                  <TableCell>
-                    <StatusBadge status={eleve.statut} />
-                  </TableCell>
-                  <TableCell>
-                    <StatusBadge status={eleve.paiement} variant="payment" />
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
+      {isLoading ? (
+        <TableSkeleton columns={7} rows={6} />
+      ) : (
+        <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader className="bg-muted/50">
+                <TableRow>
+                  <TableHead className="w-[150px] font-semibold">MATRICULE</TableHead>
+                  <TableHead className="font-semibold">NOM & PRENOM</TableHead>
+                  <TableHead className="font-semibold">CLASSE</TableHead>
+                  <TableHead className="font-semibold">SEXE</TableHead>
+                  <TableHead className="font-semibold">STATUT</TableHead>
+                  <TableHead className="font-semibold">PAIEMENT</TableHead>
+                  <TableHead className="text-right font-semibold">ACTIONS</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-        
-        {/* Pagination simple factice */}
-        <div className="p-4 border-t border-border flex items-center justify-between text-sm">
-          <div className="text-muted-foreground">Affichage de 1 a 6 sur 1 247 eleves</div>
-          <div className="flex gap-1">
-            <Button variant="outline" size="sm" disabled>Precedent</Button>
-            <Button variant="default" size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white">1</Button>
-            <Button variant="outline" size="sm">2</Button>
-            <Button variant="outline" size="sm">3</Button>
-            <Button variant="outline" size="sm">Suivant</Button>
+              </TableHeader>
+              <TableBody>
+                {eleves?.map((eleve) => (
+                  <TableRow key={eleve.id} className="hover:bg-muted/50 transition-colors">
+                    <TableCell className="font-medium text-muted-foreground">{eleve.matricule}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 font-medium text-xs">
+                          {eleve.initials}
+                        </div>
+                        <span className="font-medium">{eleve.nom}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>{eleve.classe}</TableCell>
+                    <TableCell>{eleve.sexe}</TableCell>
+                    <TableCell>
+                      <StatusBadge status={eleve.statut} />
+                    </TableCell>
+                    <TableCell>
+                      <StatusBadge status={eleve.paiement} variant="payment" />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+          
+          {/* Pagination simple factice */}
+          <div className="p-4 border-t border-border flex items-center justify-between text-sm">
+            <div className="text-muted-foreground">Affichage de 1 a 6 sur 1 247 eleves</div>
+            <div className="flex gap-1">
+              <Button variant="outline" size="sm" disabled>Precedent</Button>
+              <Button variant="default" size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white">1</Button>
+              <Button variant="outline" size="sm">2</Button>
+              <Button variant="outline" size="sm">3</Button>
+              <Button variant="outline" size="sm">Suivant</Button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
