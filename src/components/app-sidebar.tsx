@@ -1,4 +1,7 @@
+"use client"
+
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import {
   Sidebar,
   SidebarContent,
@@ -25,7 +28,21 @@ import {
 
 import { ThemeToggle } from "@/components/theme-toggle"
 
+const navItems = [
+  { title: "Tableau de bord", url: "/", icon: LayoutDashboard },
+  { title: "Eleves", url: "/eleves", icon: Users },
+  { title: "Classes", url: "/classes", icon: GraduationCap },
+  { title: "Enseignants", url: "/enseignants", icon: BookOpen },
+  { title: "Notes & Bulletins", url: "/notes", icon: ClipboardList },
+  { title: "Paiements", url: "/paiements", icon: CreditCard },
+  { title: "Emplois du temps", url: "/emplois", icon: Calendar },
+  { title: "Absences & Discipline", url: "/absences", icon: UserX },
+  { title: "Messagerie", url: "/messagerie", icon: MessageSquare },
+  { title: "Configuration", url: "/config", icon: Settings },
+]
+
 export function AppSidebar() {
+  const pathname = usePathname()
   return (
     <Sidebar collapsible="icon" className="border-r-0">
       <SidebarHeader className="border-b border-sidebar-border bg-sidebar px-4 py-6">
@@ -43,86 +60,19 @@ export function AppSidebar() {
       <SidebarContent className="bg-sidebar">
         <SidebarGroup>
           <SidebarMenu className="gap-2">
-            
-            <SidebarMenuItem>
-              <SidebarMenuButton 
-                tooltip="Tableau de bord" 
-                className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" 
-                isActive 
-                render={<Link href="/" />}
-              >
-                <LayoutDashboard />
-                <span>Tableau de bord</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-
-            <SidebarMenuItem>
-              <SidebarMenuButton 
-                tooltip="Eleves" 
-                className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" 
-                render={<Link href="/eleves" />}
-              >
-                <Users />
-                <span>Eleves</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-
-            <SidebarMenuItem>
-              <SidebarMenuButton tooltip="Classes" className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
-                <GraduationCap />
-                <span>Classes</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-
-            <SidebarMenuItem>
-              <SidebarMenuButton tooltip="Enseignants" className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
-                <BookOpen />
-                <span>Enseignants</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-
-            <SidebarMenuItem>
-              <SidebarMenuButton tooltip="Notes & Bulletins" className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
-                <ClipboardList />
-                <span>Notes & Bulletins</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-
-            <SidebarMenuItem>
-              <SidebarMenuButton tooltip="Paiements" className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
-                <CreditCard />
-                <span>Paiements</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-
-            <SidebarMenuItem>
-              <SidebarMenuButton tooltip="Emplois du temps" className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
-                <Calendar />
-                <span>Emplois du temps</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-
-            <SidebarMenuItem>
-              <SidebarMenuButton tooltip="Absences & Discipline" className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
-                <UserX />
-                <span>Absences & Discipline</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-
-            <SidebarMenuItem>
-              <SidebarMenuButton tooltip="Messagerie" className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
-                <MessageSquare />
-                <span>Messagerie</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-
-            <SidebarMenuItem>
-              <SidebarMenuButton tooltip="Configuration" className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
-                <Settings />
-                <span>Configuration</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-
+            {navItems.map((item) => (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton 
+                  tooltip={item.title} 
+                  className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" 
+                  isActive={pathname === item.url}
+                  render={<Link href={item.url} />}
+                >
+                  <item.icon />
+                  <span>{item.title}</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
