@@ -22,13 +22,13 @@ export function PageHeader({
   return (
     <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{title}</h1>
-        {subtitle && <p className="text-sm text-slate-500 mt-1">{subtitle}</p>}
+        <h1 className="text-2xl font-bold text-foreground tracking-tight">{title}</h1>
+        {subtitle && <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>}
       </div>
 
       <div className="flex items-center gap-3">
         {showExport && (
-          <Button variant="outline" onClick={onExport} className="bg-white border-slate-200 text-slate-700 hover:bg-slate-50">
+          <Button variant="outline" onClick={onExport} className="bg-background border-input text-foreground hover:bg-accent hover:text-accent-foreground">
             <Download className="mr-2 h-4 w-4" />
             Exporter
           </Button>
