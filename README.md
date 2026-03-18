@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎓 Elite School Management - Frontend
 
-## Getting Started
+Bienvenue dans l'interface web de la solution **Elite School Management**. Cette application est conçue pour offrir une expérience utilisateur fluide, moderne et performante aux administrateurs, enseignants et parents d'élèves.
 
-First, run the development server:
+## 🚀 Vision du Projet
+L'objectif est de transformer la gestion scolaire complexe en une interface intuitive utilisant le **Glassmorphism** et des animations fluides pour un rendu "Premium".
 
+## 🛠️ Stack Technologique (Elite Stack)
+- **Framework** : [Next.js 16](https://nextjs.org/) (App Router)
+- **Langage** : [TypeScript](https://www.typescriptlang.org/)
+- **UI & Composants** : [shadcn/ui](https://ui.shadcn.com/) (Radix UI + Tailwind CSS 4)
+- **Gestion d'état serveur** : [TanStack Query v5](https://tanstack.com/query/latest)
+- **Animations** : [Framer Motion](https://www.framer.com/motion/)
+- **Mobile** : Support **PWA** (Installable sur mobile)
+
+## 📦 Installation & Démarrage
+
+### 1. Prérequis
+- Node.js 20.9.0+
+- L'API backend opérationnelle (dossier `api_school`)
+
+### 2. Installation
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 3. Configuration
+Crée un fichier `.env.local` à la racine :
+```env
+NEXT_PUBLIC_API_URL=http://localhost:3000
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 4. Lancement
+```bash
+npm run dev
+```
+L'application sera accessible sur [http://localhost:3001](http://localhost:3001) (pour éviter le conflit avec l'API).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🏗️ Structure du Projet
+- `/src/app` : Routes et pages (App Router)
+- `/src/components` : Composants réutilisables (shadcn + custom)
+- `/src/lib` : Utilitaires et configurations (Query Client, API Fetcher)
+- `/src/hooks` : Hooks personnalisés pour la logique métier
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+🚀 *Développé avec passion pour l'Excellence Scolaire.*
