@@ -95,31 +95,15 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border bg-sidebar p-4 group-data-[collapsible=icon]:p-2">
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3 overflow-hidden">
-              <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-emerald-700 text-white font-semibold">
-                {initials}
-              </div>
-              <div className="grid flex-1 text-left text-sm leading-tight text-sidebar-foreground group-data-[collapsible=icon]:hidden">
-                <span className="truncate font-semibold">{fullName}</span>
-                <span className="truncate text-xs opacity-70">{roleLabel}</span>
-              </div>
-            </div>
-            <div className="group-data-[collapsible=icon]:hidden shrink-0">
-              <ThemeToggle />
-            </div>
-          </div>
-          
-          <button 
-            onClick={handleLogout}
-            className="flex items-center gap-3 px-3 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-colors group-data-[collapsible=icon]:px-2 group-data-[collapsible=icon]:justify-center"
-          >
-            <LogOut size={18} />
-            <span className="group-data-[collapsible=icon]:hidden font-medium">Déconnexion</span>
-          </button>
-        </div>
+        <button 
+          onClick={handleLogout}
+          className="flex items-center gap-3 w-full px-3 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-colors group-data-[collapsible=icon]:px-2 group-data-[collapsible=icon]:justify-center"
+        >
+          <LogOut size={18} />
+          <span className="group-data-[collapsible=icon]:hidden font-medium">Déconnexion</span>
+        </button>
       </SidebarFooter>
+
     </Sidebar>
   )
 }
