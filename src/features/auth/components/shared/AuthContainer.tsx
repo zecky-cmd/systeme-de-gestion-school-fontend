@@ -9,7 +9,7 @@ interface AuthContainerProps {
 
 export function AuthContainer({ children }: AuthContainerProps) {
   return (
-    <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-12 md:p-24 bg-slate-50 dark:bg-slate-950">
+    <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-10 md:p-12 bg-slate-50 dark:bg-slate-950">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

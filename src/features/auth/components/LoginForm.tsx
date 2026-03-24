@@ -89,12 +89,12 @@ export function LoginForm() {
         />
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl font-medium">
+          <div className="mb-4 p-4 bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl font-medium">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
 
           <AuthField
             id="email"
@@ -133,7 +133,7 @@ export function LoginForm() {
             }
           />
 
-          <div className="flex items-center space-x-2 pt-2">
+          <div className="flex items-center space-x-2 pt-1">
             <Controller
               name="rememberMe"
               control={control}
@@ -159,11 +159,12 @@ export function LoginForm() {
           </AuthButton>
         </form>
 
-        <div className="mt-8 text-center">
+        <div className="mt-5 text-center">
           <p className="text-sm text-slate-500 dark:text-slate-400">
             Portail parents ? <Link href="/portal" className="text-emerald-600 font-bold hover:underline">Accédez ici</Link>
           </p>
         </div>
+
       </AuthCard>
 
       <div className="mt-12 text-center">
