@@ -18,8 +18,11 @@ import { AuthHeader } from "./shared/AuthHeader";
 import { AuthField } from "./shared/AuthField";
 import { AuthButton } from "./shared/AuthButton";
 
+import { AuthService } from "@/services/auth.service";
+
 export function ForgotPasswordForm() {
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const {
     register,
@@ -34,11 +37,19 @@ export function ForgotPasswordForm() {
 
   const onSubmit: SubmitHandler<ForgotPasswordFormValues> = async (data) => {
     setIsLoading(true);
-    console.log("Forgot password for:", data.email);
-    setTimeout(() => {
-      setIsLoading(false);
+    setError(null);
+    try {
+      await AuthService.forgotPassword(data.email);
+      // On redirige vers la page de réinitialisation après envoi
       window.location.href = "/reset-password";
-    }, 1500);
+    } catch (err: any) {
+      setError(
+        err.response?.data?.message || 
+        "Une erreur est survenue. Veuillez vérifier votre email."
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -47,10 +58,17 @@ export function ForgotPasswordForm() {
         <AuthHeader 
           icon={BookMarked}
           title="Mot de passe oublié"
-          description="Entrez l'adresse email associée à votre compte pour recevoir un lien de réinitialisation."
+          description="Entrez l'adresse email associée à votre compte pour recevoir un code de réinitialisation."
         />
 
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl font-medium">
+            {error}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+
           <AuthField
             id="email"
             label="Adresse email"

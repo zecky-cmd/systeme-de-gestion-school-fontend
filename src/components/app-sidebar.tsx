@@ -41,8 +41,25 @@ const navItems = [
   { title: "Configuration", url: "/config", icon: Settings },
 ]
 
+import { useAuthStore } from "@/store/authStore"
+import { LogOut } from "lucide-react"
+
 export function AppSidebar() {
   const pathname = usePathname()
+  const { user, logout } = useAuthStore()
+
+  const handleLogout = () => {
+    logout()
+    window.location.href = "/login"
+  }
+
+  // Initiales de l'utilisateur
+  const initials = user ? `${user.nom.substring(0, 1)}${user.prenom.substring(0, 1)}` : "AD"
+  const fullName = user ? `${user.nom} ${user.prenom}` : "Utilisateur"
+  const roleLabel = user?.role === "adm" ? "Administrateur" : 
+                    user?.role === "dir" ? "Directeur" : 
+                    user?.role === "ens" ? "Enseignant" : "Parent/Élève"
+
   return (
     <Sidebar collapsible="icon" className="border-r-0">
       <SidebarHeader className="border-b border-sidebar-border bg-sidebar px-4 py-6">
@@ -78,21 +95,32 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border bg-sidebar p-4 group-data-[collapsible=icon]:p-2">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-emerald-700 text-white font-semibold">
-              AK
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3 overflow-hidden">
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-emerald-700 text-white font-semibold">
+                {initials}
+              </div>
+              <div className="grid flex-1 text-left text-sm leading-tight text-sidebar-foreground group-data-[collapsible=icon]:hidden">
+                <span className="truncate font-semibold">{fullName}</span>
+                <span className="truncate text-xs opacity-70">{roleLabel}</span>
+              </div>
             </div>
-            <div className="grid flex-1 text-left text-sm leading-tight text-sidebar-foreground group-data-[collapsible=icon]:hidden">
-              <span className="truncate font-semibold">Amadou Kone</span>
-              <span className="truncate text-xs opacity-70">Directeur</span>
+            <div className="group-data-[collapsible=icon]:hidden shrink-0">
+              <ThemeToggle />
             </div>
           </div>
-          <div className="group-data-[collapsible=icon]:hidden">
-            <ThemeToggle />
-          </div>
+          
+          <button 
+            onClick={handleLogout}
+            className="flex items-center gap-3 px-3 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-colors group-data-[collapsible=icon]:px-2 group-data-[collapsible=icon]:justify-center"
+          >
+            <LogOut size={18} />
+            <span className="group-data-[collapsible=icon]:hidden font-medium">Déconnexion</span>
+          </button>
         </div>
       </SidebarFooter>
     </Sidebar>
   )
 }
+

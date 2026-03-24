@@ -14,22 +14,30 @@ import {
 import Link from "next/link";
 
 import { Checkbox } from "@/components/ui/checkbox";
-import { loginSchema, type LoginFormValues } from "../types";
+import { loginSchema, type LoginFormValues, type User } from "../types";
 import { AuthContainer } from "./shared/AuthContainer";
 import { AuthCard } from "./shared/AuthCard";
 import { AuthHeader } from "./shared/AuthHeader";
 import { AuthField } from "./shared/AuthField";
 import { AuthButton } from "./shared/AuthButton";
 
+import { useAuthStore } from "@/store/authStore";
+import { AuthService } from "@/services/auth.service";
+
+import { useRouter } from "next/navigation";
+
 export function LoginForm() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const setAuth = useAuthStore((state) => state.setAuth);
 
   const {
     register,
     handleSubmit,
     control,
-    formState: { errors },
+    formState: { errors, isSubmitted },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -41,12 +49,35 @@ export function LoginForm() {
 
   const onSubmit: SubmitHandler<LoginFormValues> = async (data) => {
     setIsLoading(true);
-    console.log("Login data:", data);
-    setTimeout(() => {
+    setError(null);
+    try {
+      const response = await AuthService.login({
+        email: data.email,
+        password: data.password,
+      });
+
+      if (!response.accessToken || !response.user) {
+        throw new Error("Impossible de récupérer les informations de session.");
+      }
+
+      // Stocker la session dans Zustand
+      setAuth(response.accessToken as string, response.user as User);
+      
+      // Redirection fluide
+      router.push("/");
+      router.refresh();
+
+    } catch (err: any) {
+      console.error("Login error detail:", err);
+      const message = err.response?.data?.message || 
+                     err.message || 
+                     "Identifiants invalides ou erreur serveur.";
+      setError(message);
+    } finally {
       setIsLoading(false);
-      window.location.href = "/";
-    }, 1500);
+    }
   };
+
 
   return (
     <AuthContainer>
@@ -57,7 +88,14 @@ export function LoginForm() {
           description="Entrez vos identifiants pour accéder à votre espace"
         />
 
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl font-medium">
+            {error}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+
           <AuthField
             id="email"
             label="Adresse email"

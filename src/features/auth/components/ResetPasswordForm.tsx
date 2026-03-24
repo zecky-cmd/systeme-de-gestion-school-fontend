@@ -21,8 +21,11 @@ import { AuthHeader } from "./shared/AuthHeader";
 import { AuthField } from "./shared/AuthField";
 import { AuthButton } from "./shared/AuthButton";
 
+import { AuthService } from "@/services/auth.service";
+
 export function ResetPasswordForm() {
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [timeLeft, setTimeLeft] = useState(60);
 
@@ -48,11 +51,21 @@ export function ResetPasswordForm() {
 
   const onSubmit: SubmitHandler<ResetPasswordFormValues> = async (data) => {
     setIsLoading(true);
-    console.log("Reset password with code:", data.code);
-    setTimeout(() => {
-      setIsLoading(false);
+    setError(null);
+    try {
+      await AuthService.resetPassword({
+        code: data.code,
+        newPassword: data.newPassword
+      });
       window.location.href = "/login?reset=success";
-    }, 1500);
+    } catch (err: any) {
+      setError(
+        err.response?.data?.message || 
+        "Code invalide ou expiré. Veuillez réessayer."
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -64,7 +77,14 @@ export function ResetPasswordForm() {
           description="Saisissez le code de 6 chiffres reçu par email et votre nouveau mot de passe."
         />
 
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl font-medium">
+            {error}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+
           <AuthField
             id="code"
             label="Code de vérification"
