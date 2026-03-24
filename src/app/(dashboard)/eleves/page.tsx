@@ -1,13 +1,15 @@
 "use client";
 
+import { useState } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
+
 import { ActionToolbar } from "@/components/shared/ActionToolbar";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import {
   Table,
   TableBody,
   TableCell,
-  TableHead,
+  TableHead,  
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
@@ -17,11 +19,14 @@ import { useQuery } from "@tanstack/react-query";
 import { TableSkeleton } from "@/components/shared/TableSkeleton";
 
 import { StudentService, type Eleve } from "@/services/student.service";
+import { AddStudentSheet } from "@/features/students/components/AddStudentSheet";
 
 import { useAuthStore } from "@/store/authStore";
 
 export default function GestionElevesPage() {
+  const [isAddSheetOpen, setIsAddSheetOpen] = useState(false);
   const { hasHydrated } = useAuthStore();
+
   const { data: eleves, isLoading, error } = useQuery({
     queryKey: ['eleves'],
     queryFn: StudentService.getAll,
@@ -55,9 +60,10 @@ export default function GestionElevesPage() {
         showExport={true}
         actionButton={{
           label: "Nouvelle inscription",
-          onClick: () => console.log("Nouvelle inscription cliquée")
+          onClick: () => setIsAddSheetOpen(true)
         }}
       />
+
 
       <ActionToolbar 
         searchPlaceholder="Rechercher par nom, matricule..."
@@ -163,7 +169,14 @@ export default function GestionElevesPage() {
           </div>
         </div>
       )}
+
+      <AddStudentSheet 
+        open={isAddSheetOpen} 
+        onOpenChange={setIsAddSheetOpen} 
+      />
+
     </div>
+
   );
 }
 
