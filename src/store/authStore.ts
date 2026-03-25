@@ -7,6 +7,7 @@ interface User {
   nom: string;
   prenom: string;
   role: "adm" | "dir" | "ens" | "par" | "elv";
+  photoUrl?: string;
 }
 
 interface AuthState {

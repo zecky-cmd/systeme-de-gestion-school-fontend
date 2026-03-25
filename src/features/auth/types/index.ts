@@ -15,6 +15,7 @@ export interface User {
   nom: string;
   prenom: string;
   role: "adm" | "dir" | "ens" | "par" | "elv";
+  photoUrl?: string;
 }
 
 export interface LoginDto {
