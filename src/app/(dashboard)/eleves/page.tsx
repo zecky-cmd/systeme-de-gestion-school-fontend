@@ -25,7 +25,8 @@ import { useAuthStore } from "@/store/authStore";
 
 export default function GestionElevesPage() {
   const [isAddSheetOpen, setIsAddSheetOpen] = useState(false);
-  const { hasHydrated } = useAuthStore();
+  const { hasHydrated, user } = useAuthStore();
+
 
   const { data: eleves, isLoading, error } = useQuery({
     queryKey: ['eleves'],
@@ -37,20 +38,40 @@ export default function GestionElevesPage() {
 
 
   if (error) {
+    const isForbidden = (error as any).response?.status === 403;
     return (
-      <div className="p-8 text-center bg-red-50 border border-red-200 rounded-xl text-red-600">
-        <p className="font-bold">Erreur de chargement des données</p>
-        <p className="text-sm italic">{(error as any).response?.data?.message || (error as Error).message}</p>
-        <Button 
-          variant="outline" 
-          className="mt-4" 
-          onClick={() => window.location.reload()}
-        >
-          Réessayer
-        </Button>
+      <div className="p-8 text-center bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-xl text-red-600 dark:text-red-400">
+        <p className="font-bold text-lg mb-2">Erreur de chargement {isForbidden ? "(Accès Refusé)" : ""}</p>
+        <p className="text-sm mb-4">
+          {isForbidden 
+            ? `Désolé, votre rôle "${user?.role}" ne vous permet pas de voir la liste complète des élèves.` 
+            : ((error as any).response?.data?.message || (error as Error).message)}
+        </p>
+        <div className="flex justify-center gap-3">
+          <Button 
+            variant="outline" 
+            onClick={() => window.location.reload()}
+            className="border-red-200 hover:bg-red-100"
+          >
+            Réessayer
+          </Button>
+          {isForbidden && (
+            <Button 
+              variant="default"
+              onClick={() => {
+                useAuthStore.getState().logout();
+                window.location.href = "/login";
+              }}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Changer de compte
+            </Button>
+          )}
+        </div>
       </div>
     );
   }
+
 
   return (
     <div className="space-y-6">
@@ -121,18 +142,35 @@ export default function GestionElevesPage() {
                     const fullNom = `${nom} ${prenom}`;
                     const initials = nom.substring(0,1) + (prenom.substring(0,1) || "");
                     const classeName = eleve.classe?.nom || eleve.currentClasse || "N/A";
+                    const photoUrl = eleve.photoUrl || eleve.user?.photoUrl;
 
                     return (
-                      <TableRow key={eleve.id} className="hover:bg-muted/50 transition-colors">
+                      <TableRow key={eleve.id} className="hover:bg-muted/50 transition-colors group">
                         <TableCell className="font-medium text-muted-foreground">{eleve.matricule}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-3">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 font-medium text-xs">
-                              {initials}
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 font-bold text-xs border border-emerald-200 dark:border-emerald-800/50 overflow-hidden shadow-sm transition-transform group-hover:scale-110">
+                              {photoUrl ? (
+                                <img 
+                                  src={photoUrl} 
+                                  alt={fullNom} 
+                                  className="h-full w-full object-cover"
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).style.display = 'none';
+                                    (e.target as HTMLImageElement).parentElement!.innerHTML = initials;
+                                  }}
+                                />
+                              ) : (
+                                initials
+                              )}
                             </div>
-                            <span className="font-medium">{fullNom}</span>
+                            <div className="flex flex-col">
+                              <span className="font-bold text-slate-900 dark:text-slate-100 uppercase text-[13px] tracking-tight">{nom}</span>
+                              <span className="text-[11px] text-slate-500 font-medium">{prenom}</span>
+                            </div>
                           </div>
                         </TableCell>
+
                         <TableCell>{classeName}</TableCell>
                         <TableCell>{eleve.sexe}</TableCell>
                         <TableCell>
