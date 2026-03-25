@@ -25,15 +25,8 @@ export function UserDropdown() {
   const { theme, setTheme } = useTheme();
   const { user, logout } = useAuthStore();
 
-  // DEBUG: Voir l'objet utilisateur COMPLET pour voir quelles clés sont renvoyées
-  useEffect(() => {
-    if (user) {
-      console.log("DEBUG [UserDropdown] Objet utilisateur COMPLET:", user);
-    }
-  }, [user]);
-
-
   // Initiales et infos
+
   const initials = user ? `${user.nom.substring(0, 1)}${user.prenom.substring(0, 1)}` : "AD";
   const fullName = user ? `${user.nom} ${user.prenom}` : "Utilisateur";
   const email = user?.email || "utilisateur@edumanager.ci";
