@@ -13,7 +13,12 @@ import {
 } from "@/components/ui/select";
 import { StudentFormValues } from "../../schemas/student-form.schema";
 
-export function PersonalInfoSection() {
+interface PersonalInfoSectionProps {
+  readonlyNom?: boolean;
+  readonlyPrenom?: boolean;
+}
+
+export function PersonalInfoSection({ readonlyNom, readonlyPrenom }: PersonalInfoSectionProps) {
   const { register, watch, setValue, formState: { errors } } = useFormContext<StudentFormValues>();
   
   return (
@@ -23,12 +28,12 @@ export function PersonalInfoSection() {
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="nom">Nom</Label>
-          <Input id="nom" {...register("nom")} placeholder="KOUASSI" />
+          <Input id="nom" {...register("nom")} placeholder="KOUASSI" disabled={readonlyNom} />
           {errors.nom && <p className="text-[10px] text-red-500">{errors.nom.message}</p>}
         </div>
         <div className="space-y-2">
           <Label htmlFor="prenom">Prénom</Label>
-          <Input id="prenom" {...register("prenom")} placeholder="Jean" />
+          <Input id="prenom" {...register("prenom")} placeholder="Jean" disabled={readonlyPrenom} />
           {errors.prenom && <p className="text-[10px] text-red-500">{errors.prenom.message}</p>}
         </div>
       </div>

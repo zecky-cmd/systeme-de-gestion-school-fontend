@@ -1,34 +1,48 @@
 "use client";
 
 import { useState } from "react";
-import { PageHeader } from "@/components/shared/PageHeader";
-import { RoleGuard } from "@/components/auth/RoleGuard";
-import { canPerform, UserRole } from "@/constants/permissions";
-
-import { ActionToolbar } from "@/components/shared/ActionToolbar";
-
-import { StatusBadge } from "@/components/shared/StatusBadge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,  
-  TableHeader,
-  TableRow,
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
 } from "@/components/ui/table";
-import { Eye, Edit } from "lucide-react";
+import { 
+  Plus, 
+  Search, 
+  Filter, 
+  MoreHorizontal, 
+  Eye, 
+  Pencil, 
+  Trash2 
+} from "lucide-react"; 
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { TableSkeleton } from "@/components/shared/TableSkeleton";
+import { ActionToolbar } from "@/components/shared/ActionToolbar";
+import { StatusBadge } from "@/components/shared/StatusBadge";
+import { RoleGuard } from "@/components/auth/RoleGuard";
 
 import { StudentService, type Eleve } from "@/services/student.service";
 import { AddStudentSheet } from "@/features/students/components/AddStudentSheet";
+import { StudentDetailSheet } from "@/features/students/components/StudentDetailSheet";
+import { EditStudentSheet } from "@/features/students/components/EditStudentSheet";
 
 import { useAuthStore } from "@/store/authStore";
 
 export default function GestionElevesPage() {
   const [isAddSheetOpen, setIsAddSheetOpen] = useState(false);
+  const [isViewSheetOpen, setIsViewSheetOpen] = useState(false); // NEW
+  const [isEditSheetOpen, setIsEditSheetOpen] = useState(false); // NEW
+  const [selectedStudent, setSelectedStudent] = useState<any>(null); // NEW
   const { hasHydrated, user } = useAuthStore();
+  
+  // États pour les filtres
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedClasse, setSelectedClasse] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("");
 
 
   const { data: eleves, isLoading, error } = useQuery({
@@ -39,63 +53,100 @@ export default function GestionElevesPage() {
 
   if (!hasHydrated) return <TableSkeleton columns={7} rows={6} />;
 
+  // Handlers (NEW)
+  const handleView = (student: any) => {
+    setSelectedStudent(student);
+    setIsViewSheetOpen(true);
+  };
+
+  const handleEdit = (student: any) => {
+    setSelectedStudent(student);
+    setIsEditSheetOpen(true);
+  };
+
+  // LOGIQUE DE FILTRAGE LOCAL
+  const filteredEleves = eleves?.filter((eleve: any) => {
+    // 1. Filtrage par texte (nom, prenom, matricule)
+    const searchLower = searchTerm.toLowerCase();
+    const nom = (eleve.nom || eleve.user?.nom || "").toLowerCase();
+    const prenom = (eleve.prenom || eleve.user?.prenom || "").toLowerCase();
+    const matricule = (eleve.matricule || "").toLowerCase();
+    
+    const matchesSearch = !searchTerm || 
+      nom.includes(searchLower) || 
+      prenom.includes(searchLower) || 
+      matricule.includes(searchLower);
+
+    // 2. Filtrage par classe
+    const matchesClasse = !selectedClasse || 
+      eleve.classe?.id?.toString() === selectedClasse ||
+      eleve.classe?.nom?.toLowerCase().includes(selectedClasse.toLowerCase());
+
+    // 3. Filtrage par statut (Si applicable)
+    // Note: On adapte selon les data réelles
+    const matchesStatus = !selectedStatus || 
+      (selectedStatus === "tous" ? true : eleve.statut?.toLowerCase() === selectedStatus.toLowerCase());
+
+    return matchesSearch && matchesClasse && matchesStatus;
+  });
 
   if (error) {
     const isForbidden = (error as any).response?.status === 403;
-    return (
-      <div className="p-8 text-center bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-xl text-red-600 dark:text-red-400">
-        <p className="font-bold text-lg mb-2">Erreur de chargement {isForbidden ? "(Accès Refusé)" : ""}</p>
-        <p className="text-sm mb-4">
-          {isForbidden 
-            ? `Désolé, votre rôle "${user?.role}" ne vous permet pas de voir la liste complète des élèves.` 
-            : ((error as any).response?.data?.message || (error as Error).message)}
-        </p>
-        <div className="flex justify-center gap-3">
-          <Button 
-            variant="outline" 
-            onClick={() => window.location.reload()}
-            className="border-red-200 hover:bg-red-100"
-          >
-            Réessayer
-          </Button>
-          {isForbidden && (
-            <Button 
-              variant="default"
-              onClick={() => {
-                useAuthStore.getState().logout();
-                window.location.href = "/login";
-              }}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              Changer de compte
-            </Button>
-          )}
+    if (isForbidden) {
+      return (
+        <div className="flex flex-col items-center justify-center h-[60vh] p-8 text-center bg-card rounded-2xl border border-dashed">
+          <div className="w-16 h-16 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center mb-4">
+            <Trash2 className="text-red-600" size={24} />
+          </div>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Accès Non Autorisé</h2>
+          <p className="text-muted-foreground max-w-md">
+            Désolé, vous n'avez pas les permissions nécessaires pour consulter la liste des élèves. 
+            Contactez votre administrateur si vous pensez qu'il s'agit d'une erreur.
+          </p>
         </div>
-      </div>
-    );
+      );
+    }
+    return <div className="p-8 text-center text-red-500">Erreur lors du chargement des données.</div>;
   }
 
+  // Vérifier les permissions pour les boutons d'action (NEW)
+  const canAdd = user?.role === "adm" || user?.role === "dir";
+
   return (
-    <RoleGuard>
-      <div className="space-y-6">
-        <PageHeader 
-          title="Gestion des élèves" 
-          subtitle="Année scolaire 2025-2026"
-          showExport={true}
-          actionButton={canPerform(user?.role as UserRole, 'CREATE_STUDENT') ? {
-            label: "Nouvelle inscription",
-            onClick: () => setIsAddSheetOpen(true)
-          } : undefined}
-        />
-
-
+    <RoleGuard allowedRoles={["adm", "dir", "ens"]}> {/* Modified RoleGuard */}
+      <div className="p-6 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500"> {/* Modified structure */}
+        <header className="flex flex-col md:flex-row md:items-center justify-between gap-4"> {/* Modified structure */}
+          <div>
+            <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+              Gestion des <span className="text-emerald-600">Élèves</span>
+            </h1>
+            <p className="text-muted-foreground mt-1">
+              Consultez, ajoutez et gérez les fiches des élèves de l'établissement.
+            </p>
+          </div>
+          
+          {canAdd && (
+            <Button 
+              onClick={() => setIsAddSheetOpen(true)}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20 transition-all active:scale-95 h-11 px-6 rounded-xl font-bold flex items-center gap-2"
+            >
+              <Plus size={20} />
+              Nouvelle inscription
+            </Button>
+          )}
+        </header>
 
         <ActionToolbar 
           searchPlaceholder="Rechercher par nom, matricule..."
+          onSearchChange={setSearchTerm}
+          onFilterChange={(key: string, val: string) => {
+            if (key === "classe") setSelectedClasse(val);
+            if (key === "statut") setSelectedStatus(val);
+          }}
           filters={[
             {
               key: "classe",
-              placeholder: "Classe",
+              placeholder: "Toutes les classes",
               options: [
                 { value: "tle-d", label: "Terminale D" },
                 { value: "3eme-b", label: "3eme B" },
@@ -103,9 +154,8 @@ export default function GestionElevesPage() {
             },
             {
               key: "statut",
-              placeholder: "Statut",
+              placeholder: "Tout statut",
               options: [
-                { value: "tous", label: "Tous" },
                 { value: "inscrit", label: "Inscrit" },
                 { value: "pre-inscrit", label: "Pre-inscrit" },
                 { value: "transfert", label: "Transfert" },
@@ -132,14 +182,15 @@ export default function GestionElevesPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {eleves?.length === 0 ? (
+                  {filteredEleves?.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={7} className="h-32 text-center text-muted-foreground italic">
                         Aucun élève trouvé.
                       </TableCell>
                     </TableRow>
                   ) : (
-                    eleves?.map((eleve: any) => {
+                    filteredEleves?.map((eleve: any) => {
+
                       // Mapping flexible si les donnees viennent de User ou Eleve
                       const nom = eleve.nom || eleve.user?.nom || "Non renseigné";
                       const prenom = eleve.prenom || eleve.user?.prenom || "";
@@ -185,11 +236,21 @@ export default function GestionElevesPage() {
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
+                              <Button 
+                                onClick={() => handleView(eleve)} // Updated onClick
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                              >
                                 <Eye className="h-4 w-4" />
                               </Button>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
-                                <Edit className="h-4 w-4" />
+                              <Button 
+                                onClick={() => handleEdit(eleve)} // Updated onClick
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                              >
+                                <Pencil className="h-4 w-4" /> {/* Changed from Edit to Pencil */}
                               </Button>
                             </div>
                           </TableCell>
@@ -217,6 +278,17 @@ export default function GestionElevesPage() {
           onOpenChange={setIsAddSheetOpen} 
         />
 
+        <StudentDetailSheet
+          student={selectedStudent}
+          open={isViewSheetOpen}
+          onOpenChange={setIsViewSheetOpen}
+        />
+
+        <EditStudentSheet
+          student={selectedStudent}
+          open={isEditSheetOpen}
+          onOpenChange={setIsEditSheetOpen}
+        />
       </div>
     </RoleGuard>
   );

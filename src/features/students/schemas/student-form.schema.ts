@@ -4,8 +4,8 @@ export const studentSchema = z.object({
   // User info
   nom: z.string().min(2, "Le nom est requis"),
   prenom: z.string().min(2, "Le prénom est requis"),
-  email: z.string().email("Email invalide"),
-  password: z.string().min(8, "8 caractères minimum"),
+  email: z.string().email("Email invalide").optional().or(z.literal("")),
+  password: z.string().min(8, "8 caractères minimum").optional().or(z.literal("")),
   
   // Student profile
   matricule: z.string().optional(),
@@ -15,7 +15,7 @@ export const studentSchema = z.object({
   nationalite: z.string().optional(),
   
   // Registration
-  classeId: z.string().min(1, "La classe est requise"),
+  classeId: z.string().optional().or(z.literal("")),
   
   // social/profile
   photoUrl: z.string().url("URL invalide").optional().or(z.literal("")),

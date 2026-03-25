@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+"use client";
+
+import React, { useState, useEffect } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -11,107 +13,100 @@ import {
   SheetFooter
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { AuthService } from "@/services/auth.service";
 import { StudentService } from "@/services/student.service";
 import { ClasseService } from "@/services/classe.service";
-import { InscriptionService } from "@/services/inscription.service";
-import { ConfigService } from "@/services/config.service";
 import { StorageService } from "@/services/storage.service";
-import { Loader2 } from "lucide-react";
+import { Loader2, HelpCircle } from "lucide-react";
 
-// Refactored Components & Schema
+// Reuse the modular pieces from the add flow
 import { studentSchema, StudentFormValues } from "../schemas/student-form.schema";
 import { PhotoUploadSection } from "./enrollment/PhotoUploadSection";
 import { PersonalInfoSection } from "./enrollment/PersonalInfoSection";
 import { AccountSection } from "./enrollment/AccountSection";
 import { SchoolingSection } from "./enrollment/SchoolingSection";
 
-interface AddStudentSheetProps {
+interface EditStudentSheetProps {
+  student: any;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export function AddStudentSheet({ open, onOpenChange }: AddStudentSheetProps) {
+export function EditStudentSheet({ student, open, onOpenChange }: EditStudentSheetProps) {
   const queryClient = useQueryClient();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [localPreview, setLocalPreview] = useState<string | null>(null);
 
-  // Charger les données nécessaires
   const { data: classes } = useQuery({
     queryKey: ["classes"],
     queryFn: ClasseService.getAll,
     enabled: open,
   });
 
-  const { data: config } = useQuery({
-    queryKey: ["config"],
-    queryFn: ConfigService.getConfig,
-    enabled: open,
-  });
-
   const methods = useForm<StudentFormValues>({
     resolver: zodResolver(studentSchema),
     defaultValues: {
+      nom: "",
+      prenom: "",
+      email: "",
+      password: "UNCHANGED", // Dummy value
       sexe: "M",
-      password: "Education2026!",
-      nationalite: "Ivoirienne",
+      matricule: "",
+      classeId: "",
+      photoUrl: "",
     },
   });
 
-  const { handleSubmit, reset, formState: { isSubmitting } } = methods;
+  const { handleSubmit, reset, setValue, formState: { isSubmitting } } = methods;
+
+  // Pre-fill form when student changes
+  useEffect(() => {
+    if (student) {
+      const nom = student.nom || student.user?.nom || "";
+      const prenom = student.prenom || student.user?.prenom || "";
+      const email = student.email || student.user?.email || "";
+      
+      reset({
+        nom,
+        prenom,
+        email,
+        password: "UNCHANGED", 
+        sexe: student.sexe || "M",
+        matricule: student.matricule || "",
+        classeId: student.classe?.id?.toString() || "",
+        photoUrl: student.photoUrl || "",
+        dateNaissance: student.dateNaissance ? student.dateNaissance.split("T")[0] : "",
+        lieuNaissance: student.lieuNaissance || "",
+        nationalite: student.nationalite || "Ivoirienne",
+      });
+    }
+  }, [student, reset]);
 
   const onSubmit = async (data: StudentFormValues) => {
     try {
-      console.log("🚀 Lancement du flux d'inscription complet...");
       let finalPhotoUrl = data.photoUrl;
 
       if (selectedFile) {
-        console.log("Phase 0: Upload de la photo...");
         finalPhotoUrl = await StorageService.uploadProfilePhoto(selectedFile);
       }
 
-      console.log("Phase 1: Compte utilisateur...");
-      const userRes = await AuthService.register({
-        nom: data.nom,
-        prenom: data.prenom,
-        email: data.email as string,
-        password: data.password as string,
-        role: "elv",
-      });
-      const userId = (userRes as any).user?.id || (userRes as any).id;
-      
-      console.log("Phase 2: Profil élève...");
-      const studentRes = await StudentService.create({
-        userId,
-        matricule: data.matricule,
+      await StudentService.update(student.id, {
+        // Note: nom, prenom et email sont gérés au niveau du Compte Utilisateur (User)
+        // et ne doivent pas être envoyés dans la mise à jour de l'entité Élève.
         sexe: data.sexe,
+        matricule: data.matricule,
         dateNaissance: data.dateNaissance || undefined,
         lieuNaissance: data.lieuNaissance,
         nationalite: data.nationalite,
         photoUrl: finalPhotoUrl || undefined,
       });
 
-      console.log("Phase 3: Inscription classe...");
-      const anneeId = config?.anneeActiveId;
-      if (!anneeId) throw new Error("Année scolaire active non configurée");
-
-      await InscriptionService.create({
-        eleveId: studentRes.id,
-        classeId: parseInt((data.classeId || "0") as string),
-        anneeId,
-        statut: "ins"
-      });
-
       queryClient.invalidateQueries({ queryKey: ["eleves"] });
       onOpenChange(false);
-      reset();
-      setSelectedFile(null);
-      setLocalPreview(null);
-      alert("Élève inscrit avec succès !");
+      alert("Élève mis à jour avec succès !");
 
     } catch (err: any) {
       console.error("❌ Échec:", err.response?.data || err.message);
-      alert(`Erreur d'inscription: ${err.response?.data?.message || err.message}`);
+      alert(`Erreur de mise à jour: ${err.response?.data?.message || err.message}`);
     }
   };
 
@@ -119,14 +114,22 @@ export function AddStudentSheet({ open, onOpenChange }: AddStudentSheetProps) {
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="sm:max-w-md overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>Nouvelle Inscription</SheetTitle>
+          <SheetTitle>Modifier l'élève</SheetTitle>
           <SheetDescription>
-            Créez un compte élève et inscrivez-le dans une classe.
+            Mettez à jour les informations du profil de l'élève.
           </SheetDescription>
         </SheetHeader>
 
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 p-4 py-6">
+            <div className="bg-slate-50 dark:bg-slate-900/30 border border-slate-200 dark:border-slate-800 rounded-xl p-3 flex gap-3 text-[11px] leading-relaxed text-slate-600 dark:text-slate-400">
+              <HelpCircle className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+              <p>
+                <strong>Note :</strong> Le nom, le prénom et l'email sont liés au compte de l'utilisateur. 
+                Pour les modifier, veuillez vous rendre dans la section <strong>Configuration</strong>.
+              </p>
+            </div>
+
             <PhotoUploadSection 
               selectedFile={selectedFile}
               setSelectedFile={setSelectedFile}
@@ -134,8 +137,16 @@ export function AddStudentSheet({ open, onOpenChange }: AddStudentSheetProps) {
               setLocalPreview={setLocalPreview}
             />
 
-            <PersonalInfoSection />
-            <AccountSection />
+            <PersonalInfoSection 
+              readonlyNom={true}
+              readonlyPrenom={true}
+            />
+            
+            <AccountSection 
+              readonlyEmail={true}
+              readonlyPassword={true}
+            />
+            
             <SchoolingSection classes={classes} />
 
             <SheetFooter className="pt-6 pb-2">
@@ -147,10 +158,10 @@ export function AddStudentSheet({ open, onOpenChange }: AddStudentSheetProps) {
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    En cours...
+                    Mise à jour...
                   </>
                 ) : (
-                  "Valider l'inscription"
+                  "Enregistrer les modifications"
                 )}
               </Button>
             </SheetFooter>
@@ -160,4 +171,3 @@ export function AddStudentSheet({ open, onOpenChange }: AddStudentSheetProps) {
     </Sheet>
   );
 }
-
