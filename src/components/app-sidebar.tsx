@@ -42,10 +42,18 @@ const navItems = [
 ]
 
 import { useAuthStore } from "@/store/authStore"
-
+import { NAV_PERMISSIONS, UserRole } from "@/constants/permissions"
 
 export function AppSidebar() {
   const pathname = usePathname()
+  const { user } = useAuthStore()
+  const userRole = (user?.role || "elv") as UserRole
+
+  // Filter navigation items based on role permissions
+  const filteredNavItems = navItems.filter(item => {
+    const allowedRoles = NAV_PERMISSIONS[item.url]
+    return allowedRoles ? allowedRoles.includes(userRole) : true
+  })
 
   return (
     <Sidebar collapsible="icon" className="border-r-0">
@@ -65,7 +73,7 @@ export function AppSidebar() {
       <SidebarContent className="bg-sidebar">
         <SidebarGroup>
           <SidebarMenu className="gap-2">
-            {navItems.map((item) => (
+            {filteredNavItems.map((item) => (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton 
                   tooltip={item.title} 
@@ -81,6 +89,7 @@ export function AppSidebar() {
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
+
     </Sidebar>
   )
 }
