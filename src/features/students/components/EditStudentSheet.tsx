@@ -14,9 +14,10 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { StudentService } from "@/services/student.service";
+import { UserService } from "@/services/user.service";
 import { ClasseService } from "@/services/classe.service";
 import { StorageService } from "@/services/storage.service";
-import { Loader2, HelpCircle } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 // Reuse the modular pieces from the add flow
 import { studentSchema, StudentFormValues } from "../schemas/student-form.schema";
@@ -89,9 +90,18 @@ export function EditStudentSheet({ student, open, onOpenChange }: EditStudentShe
         finalPhotoUrl = await StorageService.uploadProfilePhoto(selectedFile);
       }
 
+      // Phase 1: Mise à jour du Compte Utilisateur (Identité)
+      const userId = student.user?.id || student.userId;
+      if (userId) {
+        await UserService.update(userId, {
+          nom: data.nom,
+          prenom: data.prenom,
+          email: data.email,
+        });
+      }
+
+      // Phase 2: Mise à jour du Profil Élève
       await StudentService.update(student.id, {
-        // Note: nom, prenom et email sont gérés au niveau du Compte Utilisateur (User)
-        // et ne doivent pas être envoyés dans la mise à jour de l'entité Élève.
         sexe: data.sexe,
         matricule: data.matricule,
         dateNaissance: data.dateNaissance || undefined,
@@ -122,14 +132,6 @@ export function EditStudentSheet({ student, open, onOpenChange }: EditStudentShe
 
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 p-4 py-6">
-            <div className="bg-slate-50 dark:bg-slate-900/30 border border-slate-200 dark:border-slate-800 rounded-xl p-3 flex gap-3 text-[11px] leading-relaxed text-slate-600 dark:text-slate-400">
-              <HelpCircle className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-              <p>
-                <strong>Note :</strong> Le nom, le prénom et l'email sont liés au compte de l'utilisateur. 
-                Pour les modifier, veuillez vous rendre dans la section <strong>Configuration</strong>.
-              </p>
-            </div>
-
             <PhotoUploadSection 
               selectedFile={selectedFile}
               setSelectedFile={setSelectedFile}
@@ -137,13 +139,9 @@ export function EditStudentSheet({ student, open, onOpenChange }: EditStudentShe
               setLocalPreview={setLocalPreview}
             />
 
-            <PersonalInfoSection 
-              readonlyNom={true}
-              readonlyPrenom={true}
-            />
+            <PersonalInfoSection />
             
             <AccountSection 
-              readonlyEmail={true}
               readonlyPassword={true}
             />
             

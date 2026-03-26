@@ -282,6 +282,11 @@ export default function GestionElevesPage() {
           student={selectedStudent}
           open={isViewSheetOpen}
           onOpenChange={setIsViewSheetOpen}
+          onEdit={(student) => {
+            setIsViewSheetOpen(false);
+            setIsEditSheetOpen(true);
+            setSelectedStudent(student);
+          }}
         />
 
         <EditStudentSheet
