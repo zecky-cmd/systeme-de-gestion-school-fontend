@@ -18,6 +18,7 @@ import { UserService } from "@/services/user.service";
 import { ClasseService } from "@/services/classe.service";
 import { StorageService } from "@/services/storage.service";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 // Reuse the modular pieces from the add flow
 import { studentSchema, StudentFormValues } from "../schemas/student-form.schema";
@@ -112,11 +113,11 @@ export function EditStudentSheet({ student, open, onOpenChange }: EditStudentShe
 
       queryClient.invalidateQueries({ queryKey: ["eleves"] });
       onOpenChange(false);
-      alert("Élève mis à jour avec succès !");
+      toast.success("Élève mis à jour avec succès !");
 
     } catch (err: any) {
       console.error("❌ Échec:", err.response?.data || err.message);
-      alert(`Erreur de mise à jour: ${err.response?.data?.message || err.message}`);
+      toast.error(`Erreur de mise à jour: ${err.response?.data?.message || err.message}`);
     }
   };
 

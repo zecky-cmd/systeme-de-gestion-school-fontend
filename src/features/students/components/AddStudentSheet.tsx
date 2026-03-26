@@ -18,6 +18,7 @@ import { InscriptionService } from "@/services/inscription.service";
 import { ConfigService } from "@/services/config.service";
 import { StorageService } from "@/services/storage.service";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 // Refactored Components & Schema
 import { studentSchema, StudentFormValues } from "../schemas/student-form.schema";
@@ -107,11 +108,10 @@ export function AddStudentSheet({ open, onOpenChange }: AddStudentSheetProps) {
       reset();
       setSelectedFile(null);
       setLocalPreview(null);
-      alert("Élève inscrit avec succès !");
-
+      toast.success("Élève inscrit avec succès !");
     } catch (err: any) {
       console.error("❌ Échec:", err.response?.data || err.message);
-      alert(`Erreur d'inscription: ${err.response?.data?.message || err.message}`);
+      toast.error(`Erreur d'inscription: ${err.response?.data?.message || err.message}`);
     }
   };
 

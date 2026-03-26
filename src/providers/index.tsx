@@ -1,5 +1,6 @@
 "use client"
 
+import { Toaster } from "sonner"
 import { ThemeProvider } from "./theme-provider"
 import { QueryProvider } from "./query-provider"
 
@@ -13,6 +14,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
     >
       <QueryProvider>
         {children}
+        <Toaster position="top-right" richColors closeButton />
       </QueryProvider>
     </ThemeProvider>
   )
