@@ -10,9 +10,13 @@ import {
   SheetFooter
 } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, Flag, User, GraduationCap, CreditCard, Mail, Pencil, Trash2 } from "lucide-react";
+import { Calendar, MapPin, Flag, User, GraduationCap, CreditCard, Mail, Pencil, Trash2, Plus, Loader2 } from "lucide-react";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { PaiementService } from "@/services/paiement.service";
+import { PaymentHistorySheet } from "./payments/PaymentHistorySheet";
+import { AddPaymentDialog } from "./payments/AddPaymentDialog";
 
 interface StudentDetailSheetProps {
   student: any;
@@ -30,6 +34,16 @@ export function StudentDetailSheet({ student, open, onOpenChange, onEdit }: Stud
   const email = student.email || student.user?.email || "Pas d'email";
   const photoUrl = student.photoUrl || student.user?.photoUrl;
   const initials = nom.substring(0, 1) + (prenom.substring(0, 1) || "");
+
+  const [isHistoryOpen, setIsHistoryOpen] = React.useState(false);
+  const [isAddPaymentOpen, setIsAddPaymentOpen] = React.useState(false);
+
+  // Récupérer la situation financière réelle
+  const { data: situation, isLoading: isLoadingFinance } = useQuery({
+    queryKey: ["finance-situation", student.id],
+    queryFn: () => PaiementService.getSituation(student.id),
+    enabled: open && !!student.id,
+  });
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -140,17 +154,56 @@ export function StudentDetailSheet({ student, open, onOpenChange, onEdit }: Stud
               <div className="space-y-1">
                 <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider leading-none">Statut de paiement</p>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-xl font-black text-slate-900 dark:text-white">0</span>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase">CFA Restant</span>
+                  {isLoadingFinance ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-emerald-600" />
+                  ) : (
+                    <>
+                      <span className="text-xl font-black text-slate-900 dark:text-white">
+                        {situation?.resteAPayer?.toLocaleString('fr-FR') || "0"}
+                      </span>
+                      <span className="text-[10px] font-bold text-slate-400 uppercase">CFA Restant</span>
+                    </>
+                  )}
                 </div>
               </div>
               <div className="text-right space-y-2">
-                <StatusBadge status={student.paiement || "Complet"} variant="payment" className="h-7 px-4 text-[10px] border-0 shadow-sm" />
-                <p className="text-[10px] text-emerald-500 font-bold underline cursor-pointer hover:text-emerald-600 transition-colors">Historique</p>
+                <StatusBadge 
+                  status={situation?.statut || "Complet"} 
+                  variant="payment" 
+                  className="h-7 px-4 text-[10px] border-0 shadow-sm" 
+                />
+                <div className="flex items-center justify-end gap-3 pt-1">
+                  <p 
+                    className="text-[10px] text-emerald-500 font-bold underline cursor-pointer hover:text-emerald-600 transition-colors"
+                    onClick={() => setIsHistoryOpen(true)}
+                  >
+                    Historique
+                  </p>
+                  <Button 
+                    size="icon" 
+                    variant="ghost" 
+                    className="h-6 w-6 rounded-full bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 hover:bg-emerald-100 transition-all border border-emerald-100 dark:border-emerald-800/50"
+                    onClick={() => setIsAddPaymentOpen(true)}
+                  >
+                    <Plus size={12} />
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
         </div>
+
+        {/* Modal & Sheets Financiers */}
+        <PaymentHistorySheet 
+          eleveId={student.id} 
+          open={isHistoryOpen} 
+          onOpenChange={setIsHistoryOpen} 
+        />
+        <AddPaymentDialog 
+          eleveId={student.id} 
+          open={isAddPaymentOpen} 
+          onOpenChange={setIsAddPaymentOpen} 
+        />
 
         {/* Footer avec Actions Rapides */}
         <SheetFooter className="p-4 bg-slate-50 dark:bg-slate-900/80 border-t border-slate-200 dark:border-slate-800 gap-2 sm:justify-between shrink-0">
