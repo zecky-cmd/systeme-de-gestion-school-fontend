@@ -63,20 +63,6 @@ Le projet adopte une structure modulaire par **Fonctionnalités (Features)** pou
 - `src/features/classes` : Organisation pédagogique, suivi des effectifs et surcharge.
 - `src/features/finances` : Gestion de la scolarité, rubriques de paiement et historique comptable.
 
----
-
-## 📦 Installation & Déploiement
-
-```bash
-# 1. Cloner le dépôt
-git clone [URL_DU_REPO]
-
-# 2. Installer les dépendances
-npm install
-
-# 3. Lancer l'environnement de développement
-npm run dev
-```
 
 ---
 ⭐ *Conçu avec passion pour l'Excellence Académique.*
