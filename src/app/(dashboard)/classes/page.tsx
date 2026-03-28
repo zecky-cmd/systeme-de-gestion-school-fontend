@@ -2,11 +2,11 @@
 
 import React, { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ClasseService } from "@/services/classe.service";
+import { Classe, ClasseService } from "@/services/classe.service";
 import { ConfigService } from "@/services/config.service";
 import { ClasseStats } from "@/features/classes/components/ClasseStats";
 import { ClassesTable } from "@/features/classes/components/ClassesTable";
-import { AddClasseSheet } from "@/features/classes/components/AddClasseSheet";
+import { ClasseFormSheet } from "@/features/classes/components/ClasseFormSheet";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { 
@@ -29,7 +29,11 @@ import { motion, AnimatePresence } from "framer-motion";
 export default function ClassesPage() {
   const [search, setSearch] = useState("");
   const [cycleFilter, setCycleFilter] = useState<string>("all");
-  const [isAddOpen, setIsAddOpen] = useState(false);
+  
+  // États pour le volet de formulaire
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [sheetMode, setSheetMode] = useState<"add" | "edit" | "view">("add");
+  const [selectedClasse, setSelectedClasse] = useState<Classe | null>(null);
 
   // 1. Récupérer la configuration active
   const { data: config } = useQuery({
@@ -63,6 +67,25 @@ export default function ClassesPage() {
       return matchSearch && matchCycle;
     });
   }, [classes, search, cycleFilter]);
+
+  // Handlers pour les actions
+  const handleAdd = () => {
+    setSheetMode("add");
+    setSelectedClasse(null);
+    setIsSheetOpen(true);
+  };
+
+  const handleEdit = (classe: Classe) => {
+    setSheetMode("edit");
+    setSelectedClasse(classe);
+    setIsSheetOpen(true);
+  };
+
+  const handleView = (classe: Classe) => {
+    setSheetMode("view");
+    setSelectedClasse(classe);
+    setIsSheetOpen(true);
+  };
 
   return (
     <motion.div 
@@ -104,7 +127,7 @@ export default function ClassesPage() {
                 EXPORTER
             </Button>
             <Button 
-              onClick={() => setIsAddOpen(true)}
+              onClick={handleAdd}
               className="h-10 px-6 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs uppercase tracking-widest shadow-lg shadow-emerald-500/20 gap-2 border-0"
             >
               <Plus size={16} strokeWidth={3} />
@@ -161,14 +184,18 @@ export default function ClassesPage() {
            <ClassesTable 
               classes={filteredClasses} 
               isLoading={isLoading} 
+              onEdit={handleEdit}
+              onView={handleView}
            />
         </motion.div>
       </AnimatePresence>
 
-      {/* Sheet d'ajout */}
-      <AddClasseSheet 
-        open={isAddOpen} 
-        onOpenChange={setIsAddOpen} 
+      {/* Volet de formulaire (Ajout / Edition / Consultation) */}
+      <ClasseFormSheet 
+        open={isSheetOpen} 
+        onOpenChange={setIsSheetOpen}
+        mode={sheetMode}
+        initialData={selectedClasse}
       />
     </motion.div>
   );
