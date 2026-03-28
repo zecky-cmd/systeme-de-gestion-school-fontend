@@ -78,6 +78,33 @@ export function LoginForm() {
     }
   };
 
+  const handleDemoLogin = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      // Identifiants démo pré-définis
+      const demoEmail = "admin@demo.com";
+      const demoPassword = "password123";
+
+      const response = await AuthService.login({
+        email: demoEmail,
+        password: demoPassword,
+      });
+
+      if (!response.accessToken || !response.user) {
+        throw new Error("Impossible de récupérer les informations de session démo.");
+      }
+
+      setAuth(response.accessToken as string, response.user as User);
+      router.push("/");
+      router.refresh();
+    } catch (err: any) {
+      setError("Accès Démo temporairement indisponible.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
 
   return (
     <AuthContainer>
@@ -158,6 +185,22 @@ export function LoginForm() {
             Se connecter
           </AuthButton>
         </form>
+
+        <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800">
+          <div className="bg-emerald-50/50 dark:bg-emerald-900/10 p-4 rounded-2xl flex items-center justify-between gap-4">
+             <div className="space-y-1">
+                <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Vous êtes recruteur ?</p>
+                <p className="text-xs text-slate-500 font-medium italic">Accédez au dashboard en un clic.</p>
+             </div>
+             <button 
+                onClick={handleDemoLogin}
+                disabled={isLoading}
+                className="h-9 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-emerald-600/20 transition-all active:scale-95 disabled:opacity-50"
+             >
+                {isLoading ? "CHARGEMENT..." : "ACCÈS DÉMO"}
+             </button>
+          </div>
+        </div>
 
         <div className="mt-5 text-center">
           <p className="text-sm text-slate-500 dark:text-slate-400">

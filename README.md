@@ -65,4 +65,15 @@ Le projet adopte une structure modulaire par **Fonctionnalités (Features)** pou
 
 
 ---
+
+## 🎟️ Accès Démo (Recruteurs)
+
+Pour tester la plateforme sans configuration :
+1.  Rendez-vous sur la page de connexion.
+2.  Cliquez sur le bouton **"ACCÈS DÉMO"** en bas du formulaire.
+3.  *Ou utilisez manuellement* : 
+    - **Email** : `admin@demo.com`
+    - **Mot de passe** : `password123`
+
+---
 ⭐ *Conçu avec passion pour l'Excellence Académique.*
