@@ -40,7 +40,7 @@ export function AddStudentSheet({ open, onOpenChange }: AddStudentSheetProps) {
   // Charger les données nécessaires
   const { data: classes } = useQuery({
     queryKey: ["classes"],
-    queryFn: ClasseService.getAll,
+    queryFn: () => ClasseService.getAll(),
     enabled: open,
   });
 
@@ -110,7 +110,7 @@ export function AddStudentSheet({ open, onOpenChange }: AddStudentSheetProps) {
       setLocalPreview(null);
       toast.success("Élève inscrit avec succès !");
     } catch (err: any) {
-      console.error("❌ Échec:", err.response?.data || err.message);
+      console.error(" Échec:", err.response?.data || err.message);
       toast.error(`Erreur d'inscription: ${err.response?.data?.message || err.message}`);
     }
   };

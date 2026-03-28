@@ -7,24 +7,9 @@ import { ConfigService } from "@/services/config.service";
 import { ClasseStats } from "@/features/classes/components/ClasseStats";
 import { ClassesTable } from "@/features/classes/components/ClassesTable";
 import { ClasseFormSheet } from "@/features/classes/components/ClasseFormSheet";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { 
-  Plus, 
-  Search, 
-  Filter, 
-  Download, 
-  RefreshCw,
-  LayoutGrid
-} from "lucide-react";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
 import { motion, AnimatePresence } from "framer-motion";
+import { ClassesHeader } from "@/features/classes/components/sub-components/ClassesHeader";
+import { ClassesFilters } from "@/features/classes/components/sub-components/ClassesFilters";
 
 export default function ClassesPage() {
   const [search, setSearch] = useState("");
@@ -91,88 +76,23 @@ export default function ClassesPage() {
     <motion.div 
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="p-4 lg:p-8 space-y-6 max-w-[1600px] mx-auto"
+      className="p-4 lg:p-8 space-y-6 max-w-[1600px] mx-auto overflow-y-auto flex-1"
     >
-      {/* Header Premium */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
-            <LayoutGrid size={18} className="animate-pulse" />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em]">Gestion Académique</span>
-          </div>
-          <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-            Organisation des <span className="text-emerald-600">Classes</span>
-          </h1>
-          <p className="text-xs font-bold text-slate-400 max-w-md">
-            Gérez les sections, surveillez le remplissage et optimisez l'affectation des élèves par cycle et niveau.
-          </p>
-        </div>
+      <ClassesHeader 
+        onAdd={handleAdd} 
+        onRefresh={() => refetch()} 
+        isFetching={isFetching} 
+      />
 
-        <div className="flex items-center gap-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => refetch()}
-              className="h-9 px-3 border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm"
-              disabled={isFetching}
-            >
-              <RefreshCw className={isFetching ? "animate-spin h-3.5 w-3.5" : "h-3.5 w-3.5"} />
-            </Button>
-            <Button 
-                variant="outline" 
-                size="sm" 
-                className="h-9 gap-2 text-xs font-black border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm"
-            >
-                <Download size={14} />
-                EXPORTER
-            </Button>
-            <Button 
-              onClick={handleAdd}
-              className="h-10 px-6 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs uppercase tracking-widest shadow-lg shadow-emerald-500/20 gap-2 border-0"
-            >
-              <Plus size={16} strokeWidth={3} />
-              NOUVELLE CLASSE
-            </Button>
-        </div>
-      </div>
-
-      {/* Statistiques Dynamiques */}
       <ClasseStats stats={stats} isLoading={isLoading} />
 
-      {/* Barre de Filtres Contextuelle */}
-      <div className="flex flex-col md:flex-row gap-4 p-4 rounded-2xl bg-white/50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 backdrop-blur-md shadow-sm">
-        <div className="relative flex-1 group">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
-          <Input 
-            placeholder="Rechercher une classe ou un niveau..." 
-            className="pl-10 h-10 bg-transparent border-slate-200 dark:border-slate-800 focus:ring-emerald-500/20 font-bold text-sm"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
+      <ClassesFilters 
+        search={search} 
+        onSearchChange={setSearch} 
+        cycleFilter={cycleFilter} 
+        onCycleChange={setCycleFilter} 
+      />
 
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2">
-            <Filter size={14} className="text-slate-400" />
-            <Select value={cycleFilter} onValueChange={(val) => setCycleFilter(val || "all")}>
-              <SelectTrigger className="w-[140px] h-10 font-bold border-slate-200 dark:border-slate-800 bg-transparent">
-                <SelectValue placeholder="Tous les cycles" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tous les cycles</SelectItem>
-                <SelectItem value="col">Collège</SelectItem>
-                <SelectItem value="lyc">Lycée</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <Button variant="ghost" size="icon" className="h-10 w-10 text-slate-400">
-             <LayoutGrid size={18} />
-          </Button>
-        </div>
-      </div>
-
-      {/* Tableau des Classes */}
       <AnimatePresence mode="wait">
         <motion.div
            key={cycleFilter + search}
@@ -190,7 +110,6 @@ export default function ClassesPage() {
         </motion.div>
       </AnimatePresence>
 
-      {/* Volet de formulaire (Ajout / Edition / Consultation) */}
       <ClasseFormSheet 
         open={isSheetOpen} 
         onOpenChange={setIsSheetOpen}

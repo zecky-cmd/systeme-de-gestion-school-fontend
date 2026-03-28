@@ -12,9 +12,10 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { StudentFormValues } from "../../schemas/student-form.schema";
+import { Classe } from "@/services/classe.service";
 
 interface SchoolingSectionProps {
-  classes?: any[];
+  classes?: Classe[];
 }
 
 export function SchoolingSection({ classes }: SchoolingSectionProps) {

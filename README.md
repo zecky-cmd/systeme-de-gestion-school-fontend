@@ -1,64 +1,82 @@
-#  EduManager CI - Frontend (Web School)
+# 🎓 EduManager CI - Système de Gestion Scolaire Intelligent
 
-Bienvenue dans l'interface web de la solution **EduManager CI**. Cette application est conçue pour offrir une expérience utilisateur fluide, moderne et performante aux administrateurs, enseignants et parents d'élèves.
+[![Production](https://img.shields.io/badge/Production-Live-emerald?style=for-the-badge&logo=vercel)](https://web-school-frontend.vercel.app/)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 
-##  Vision du Projet
-L'objectif est de transformer la gestion scolaire complexe en une interface de tableau de bord intuitive, ultra-rapide (PWA) et ergonomique en utilisant les meilleurs standards du web moderne.
-
-##  Elite Stack Technologique
-- **Framework Core** : [Next.js 16](https://nextjs.org/) (App Router, React 19)
-- **Langage** : [TypeScript](https://www.typescriptlang.org/)
-- **Style & UI** : [Tailwind CSS v4](https://tailwindcss.com/) + [shadcn/ui](https://ui.shadcn.com/) (basé sur `@base-ui/react`)
-- **Gestion de Thème** : Dark Mode natif via `next-themes`
-- **Gestion d'état global (Client)** : [Zustand](https://github.com/pmndrs/zustand)
-- **Gestion d'état asynchrone (Serveur/API)** : [TanStack Query v5](https://tanstack.com/query/latest) (Avec Devtools)
-- **Icônes** : [Lucide React](https://lucide.dev/)
-
-##  Installation & Démarrage
-
-### 1. Prérequis
-- Node.js 20.9.0+
-- L'API backend opérationnelle (dossier `api_school`) pour la production
-
-### 2. Installation
-```bash
-npm install
-```
-
-### 3. Lancement en développement
-```bash
-npm run dev
-```
-L'application sera accessible sur [http://localhost:3000](http://localhost:3000).
-
-##  Architecture Scalable du Projet
-
-L'application est découpée selon les principes du _Clean Code_ et de l'architecture par _Fonctionnalités (Features)_ :
-
-- `src/app/` : Routes Next.js (Pages, Layouts, CSS global). C'est le point d'entrée.
-- `src/components/ui/` : Composants de base "stupides" apportés par Shadcn UI (Boutons, Inputs, Dropdowns, etc.).
-- `src/components/shared/` : Composants métier globaux et réutilisables créés pour l'application :
-  - **`PageHeader`** : En-tête de page standardisé (Titre, sous-titre, bouton d'export).
-  - **`ActionToolbar`** : Barre de recherche et filtres pour les tableaux.
-  - **`StatusBadge`** : Badges dynamiques pour afficher les statuts métiers (Inscrit, En retard, Transfert, etc.).
-  - **`TableSkeleton`** : Squelettes de chargement génériques pour fluidifier l'UX lors des appels API.
-- `src/components/app-sidebar.tsx` : La navigation latérale (Sidebar) principale de l'application.
-- `src/constants/` : Dictionnaires de l'application (Configurations de thèmes, routes, couleurs associées aux statuts).
-- `src/providers/` : Conteneurs de contexte globaux (`AppProviders`, `ThemeProvider`, `QueryProvider`).
-- `src/store/` : Stores Zustand pour la gestion de l'état global du client (ex: année scolaire sélectionnée).
-
-##  Dark Mode & Theming
-
-Le projet intègre un support complet du mode sombre et clair.
-- Les couleurs sont définies via des variables CSS sémantiques dans `globals.css` (ex: `--background`, `--foreground`, `--primary`, `--border`). 
-- **Bonne pratique respectée** : Aucune couleur n'est codée en dur dans les composants (`bg-white` ou `text-black` sont proscrits) afin de garantir une parfaite réactivité et lisibilité au changement de thème.
-
-##  Appels API & Cache (TanStack Query)
-
-Toutes les requêtes adressées à l'API backend utiliseront `useQuery` et `useMutation` de TanStack Query pour bénéficier :
-- De la mise en cache automatique
-- Du rechargement en arrière-plan
-- D'une gestion unifiée des états de chargement (`isLoading`, intimement couplé avec le composant `TableSkeleton`) et d'erreur.
+**EduManager CI** est une plateforme de gestion académique et financière de nouvelle génération. Conçue pour offrir une expérience "Premium", elle transforme la complexité administrative en une interface fluide, rapide et intuitive.
 
 ---
- *Développé pour l'Excellence.*
+
+## 🚀 Liens de Production
+- **Application Web (Frontend)** : [https://web-school-frontend.vercel.app/](https://web-school-frontend.vercel.app/)
+- **Documentation API (Backend)** : [Accéder au Swagger](https://votre-api.railway.app/api#/Default/ClasseController_create)
+
+---
+
+## 🛠 Elite Stack Technologique & Justifications
+
+Le choix de cette stack a été guidé par trois impératifs : **Performance**, **Scalabilité** et **Expérience Utilisateur (UX)**.
+
+### 1. Core Framework & Langage
+*   **Next.js 16 (App Router) & React 19** : 
+    *   *Rôle* : Framework principal.
+    *   *Justification* : L'utilisation des *Server Components* réduit drastiquement le JavaScript envoyé au client, garantissant des temps de chargement records. Le support natif du SEO et de l'optimisation des ressources (images, polices) est indispensable pour une PWA performante.
+*   **TypeScript** : 
+    *   *Rôle* : Typage statique rigoureux.
+    *   *Justification* : Élimine les erreurs silencieuses à l'exécution et facilite la collaboration grâce à une documentation vivante. Crucial pour gérer des modèles de données complexes comme les inscriptions ou les flux financiers.
+
+### 2. Gestion d'État (Le "Cerveau")
+*   **TanStack Query v5 (React Query)** : 
+    *   *Rôle* : Gestion de l'état asynchrone et cache serveur.
+    *   *Justification* : C'est le pilier de l'application. Il gère la mise en cache intelligente, le rafraîchissement en arrière-plan et réduit les appels API superflus, offrant une réactivité "Instantanée" pour l'administrateur.
+*   **Zustand** : 
+    *   *Rôle* : État global client léger.
+    *   *Justification* : Alternative moderne à Redux, beaucoup plus performante et simple à maintenir pour les états UI globaux (Authentification, configuration de l'année scolaire, état de la barre latérale).
+
+### 3. Interface & Design System Premium
+*   **Tailwind CSS v4 & shadcn/ui** : 
+    *   *Rôle* : Moteur de style et primitives de composants.
+    *   *Justification* : Permet un développement "utility-first" ultra-rapide. Les composants `shadcn/ui` (basés sur Radix UI) garantissent une accessibilité parfaite (WAI-ARIA) tout en permettant une personnalisation esthétique totale (Glassmorphism, Dark mode).
+*   **Framer Motion** : 
+    *   *Rôle* : Orchestration des animations.
+    *   *Justification* : Indispensable pour l'aspect "Premium". Apporte du mouvement fluide (entrées de pages, barres de progression animées, transitions de vues) qui valorise l'image de l'établissement.
+
+### 4. Formulaires & Sécurité des Données
+*   **React Hook Form & Zod** : 
+    *   *Rôle* : Gestion des formulaires et validation de schémas.
+    *   *Justification* : Performance maximale sans re-rendus inutiles. La validation via Zod garantit que les données saisies correspondent exactement aux contrats de l'API (DTO), prévenant les erreurs de soumission.
+
+### 5. Services & Outils Complémentaires
+*   **Supabase SDK** : Utilisé pour le stockage sécurisé des médias (photos de profil, documents administratifs).
+*   **Axios** : Client HTTP configuré avec des intercepteurs pour la gestion centralisée des tokens JWT et des erreurs globales.
+*   **Sonner** : Système de notifications (Toasts) élégant et réactif.
+
+---
+
+## 🏗 Architecture des Modules
+
+Le projet adopte une structure modulaire par **Fonctionnalités (Features)** pour une maintenance et une évolutivité optimales :
+
+- `src/features/auth` : Gestion sécurisée des accès et des permissions (RBAC).
+- `src/features/students` : Inscriptions, dossiers individuels et filtres multicritères.
+- `src/features/classes` : Organisation pédagogique, suivi des effectifs et surcharge.
+- `src/features/finances` : Gestion de la scolarité, rubriques de paiement et historique comptable.
+
+---
+
+## 📦 Installation & Déploiement
+
+```bash
+# 1. Cloner le dépôt
+git clone [URL_DU_REPO]
+
+# 2. Installer les dépendances
+npm install
+
+# 3. Lancer l'environnement de développement
+npm run dev
+```
+
+---
+⭐ *Conçu avec passion pour l'Excellence Académique.*

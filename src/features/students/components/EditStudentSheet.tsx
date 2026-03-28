@@ -40,7 +40,7 @@ export function EditStudentSheet({ student, open, onOpenChange }: EditStudentShe
 
   const { data: classes } = useQuery({
     queryKey: ["classes"],
-    queryFn: ClasseService.getAll,
+    queryFn: () => ClasseService.getAll(),
     enabled: open,
   });
 
@@ -116,7 +116,7 @@ export function EditStudentSheet({ student, open, onOpenChange }: EditStudentShe
       toast.success("Élève mis à jour avec succès !");
 
     } catch (err: any) {
-      console.error("❌ Échec:", err.response?.data || err.message);
+      console.error(" Échec:", err.response?.data || err.message);
       toast.error(`Erreur de mise à jour: ${err.response?.data?.message || err.message}`);
     }
   };
