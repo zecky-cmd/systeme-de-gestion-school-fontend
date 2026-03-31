@@ -49,8 +49,8 @@ export function ClasseFormFields({ form, isView, initialData }: ClasseFormFields
               <SelectValue placeholder="Cycle" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="col">Collège</SelectItem>
-              <SelectItem value="lyc">Lycée</SelectItem>
+              <SelectItem value="col">Premier Cycle</SelectItem>
+              <SelectItem value="lyc">2ème Cycle</SelectItem>
             </SelectContent>
           </Select>
         </div>

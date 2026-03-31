@@ -41,7 +41,7 @@ export default function DashboardLayout({
   return (
     <SidebarProvider>
       <AppSidebar />
-      <main className="flex-1 overflow-x-hidden bg-background text-foreground flex flex-col min-h-screen">
+      <main className="flex-1 overflow-x-hidden bg-slate-100/50 dark:bg-background text-foreground flex flex-col min-h-screen">
         <DashboardHeader />
         <div className="flex-1 p-6 md:p-8">
           {children}

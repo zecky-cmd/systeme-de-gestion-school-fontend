@@ -10,6 +10,8 @@ import { ClasseFormSheet } from "@/features/classes/components/ClasseFormSheet";
 import { motion, AnimatePresence } from "framer-motion";
 import { ClassesHeader } from "@/features/classes/components/sub-components/ClassesHeader";
 import { ClassesFilters } from "@/features/classes/components/sub-components/ClassesFilters";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { School, Landmark, LayoutGrid } from "lucide-react";
 
 export default function ClassesPage() {
   const [search, setSearch] = useState("");
@@ -76,7 +78,7 @@ export default function ClassesPage() {
     <motion.div 
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="p-4 lg:p-8 space-y-6 max-w-[1600px] mx-auto overflow-y-auto flex-1"
+      className="p-4 lg:p-8 space-y-6 max-w-[1600px] mx-auto overflow-y-auto flex-1 scrollbar-none"
     >
       <ClassesHeader 
         onAdd={handleAdd} 
@@ -86,19 +88,39 @@ export default function ClassesPage() {
 
       <ClasseStats stats={stats} isLoading={isLoading} />
 
-      <ClassesFilters 
-        search={search} 
-        onSearchChange={setSearch} 
-        cycleFilter={cycleFilter} 
-        onCycleChange={setCycleFilter} 
-      />
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+        {/* Elite Tabs for Cycle Selection */}
+        <Tabs value={cycleFilter} onValueChange={setCycleFilter} className="w-full md:w-auto">
+          <TabsList className="bg-slate-100/50 dark:bg-slate-900/50 p-1 rounded-2xl border border-slate-200 dark:border-slate-800 gap-1 h-12">
+            <TabsTrigger value="all" className="rounded-xl px-6 data-[state=active]:bg-white dark:data-[state=active]:bg-emerald-600 data-[state=active]:text-emerald-700 dark:data-[state=active]:text-white data-[state=active]:shadow-sm font-black text-[10px] uppercase tracking-widest gap-2">
+              <LayoutGrid size={14} />
+              Toutes
+            </TabsTrigger>
+            <TabsTrigger value="col" className="rounded-xl px-6 data-[state=active]:bg-white dark:data-[state=active]:bg-blue-600 data-[state=active]:text-blue-700 dark:data-[state=active]:text-white data-[state=active]:shadow-sm font-black text-[10px] uppercase tracking-widest gap-2">
+              <School size={14} />
+              Premier Cycle
+            </TabsTrigger>
+            <TabsTrigger value="lyc" className="rounded-xl px-6 data-[state=active]:bg-white dark:data-[state=active]:bg-indigo-600 data-[state=active]:text-indigo-700 dark:data-[state=active]:text-white data-[state=active]:shadow-sm font-black text-[10px] uppercase tracking-widest gap-2">
+              <Landmark size={14} />
+              2ème Cycle
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+
+        <div className="w-full md:w-auto flex-1 md:max-w-md">
+          <ClassesFilters 
+            search={search} 
+            onSearchChange={setSearch} 
+          />
+        </div>
+      </div>
 
       <AnimatePresence mode="wait">
         <motion.div
            key={cycleFilter + search}
-           initial={{ opacity: 0 }}
-           animate={{ opacity: 1 }}
-           exit={{ opacity: 0 }}
+           initial={{ opacity: 0, y: 10 }}
+           animate={{ opacity: 1, y: 0 }}
+           exit={{ opacity: 0, y: -10 }}
            transition={{ duration: 0.2 }}
         >
            <ClassesTable 
