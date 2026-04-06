@@ -2,7 +2,7 @@ import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "https://edumanager.up.railway.app/api",
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "https://edumanager-v1.up.railway.app/api",
   headers: {
     "Content-Type": "application/json",
   },
