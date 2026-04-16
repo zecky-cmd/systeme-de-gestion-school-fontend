@@ -39,5 +39,24 @@ export const StudentService = {
 
   delete: async (id: number): Promise<void> => {
     await api.delete(`/eleve/${id}`);
+  },
+
+  /**
+   * Inscription complète (User + Eleve + Inscription) en une seule fois
+   */
+  inscriptionComplete: async (data: {
+    nom: string;
+    prenom: string;
+    email: string;
+    password?: string;
+    sexe: "M" | "F";
+    dateNaissance: string;
+    lieuNaissance: string;
+    nationalite: string;
+    classeId: number;
+    anneeId: number;
+  }): Promise<any> => {
+    const response = await api.post("/eleve/inscription-complete", data);
+    return response.data;
   }
 };
