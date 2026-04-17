@@ -7,7 +7,17 @@ export interface DashboardStats {
   totalParents: number;
   tauxPaiement: number;
   absencesAujourdhui: number;
-  inscriptionsRecentes: any[];
+  inscriptionsRecentes: {
+    id: number;
+    nom: string;
+    prenom: string;
+    matricule: string;
+    date: string;
+    classe?: {
+      id: number;
+      nom: string;
+    };
+  }[];
 }
 
 export const DashboardService = {

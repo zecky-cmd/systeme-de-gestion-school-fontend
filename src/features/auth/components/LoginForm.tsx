@@ -83,7 +83,7 @@ export function LoginForm() {
     setError(null);
     try {
       // Identifiants démo pré-définis
-      const demoEmail = "admin@demo.com";
+      const demoEmail = "admin@school.com";
       const demoPassword = "password123";
 
       const response = await AuthService.login({
