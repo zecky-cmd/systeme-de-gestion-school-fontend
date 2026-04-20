@@ -9,8 +9,8 @@
 ---
 
 ## 🚀 Liens de Production
-- **Application Web (Frontend)** : [https://web-school-frontend.vercel.app/](https://web-school-frontend.vercel.app/)
-- **Documentation API (Backend)** : [Accéder au Swagger](https://votre-api.railway.app/api#/Default/ClasseController_create)
+- **Application Web (Frontend)** : [https://edumanager-app.vercel.app/](https://edumanager-app.vercel.app/)
+- **Documentation API (Backend)** : [Accéder au Swagger](https://edumanager.up.railway.app/api/docs)
 
 ---
 
