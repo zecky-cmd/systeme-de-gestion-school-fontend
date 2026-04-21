@@ -43,7 +43,7 @@ export function ClasseFormFields({ form, isView, initialData }: ClasseFormFields
           <Select 
             disabled={isView}
             defaultValue={initialData?.cycle || "col"} 
-            onValueChange={(val) => setValue("cycle", val as Cycle)}
+            onValueChange={(val) => val && setValue("cycle", val as Cycle)}
           >
             <SelectTrigger className="h-11 font-bold border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900">
               <SelectValue placeholder="Cycle" />

@@ -31,16 +31,15 @@ interface PaymentHistorySheetProps {
 export function PaymentHistorySheet({ eleveId, open, onOpenChange }: PaymentHistorySheetProps) {
   const { data: history, isLoading } = useQuery({
     queryKey: ["payment-history", eleveId],
-    queryFn: () => PaiementService.getHistory(eleveId),
+    queryFn: () => PaiementService.getAll({ eleveId }),
     enabled: open && !!eleveId,
   });
 
   const getModeLabel = (mode: string) => {
     switch (mode) {
       case "esp": return "Espèces";
-      case "vrt": return "Virement";
-      case "chq": return "Chèque";
-      case "mob": return "Mobile Money";
+      case "mobile": return "Mobile Money";
+      case "cheque": return "Chèque";
       default: return mode;
     }
   };
@@ -102,7 +101,7 @@ export function PaymentHistorySheet({ eleveId, open, onOpenChange }: PaymentHist
                     <TableCell>
                       <div className="flex items-center gap-1.5 text-slate-500">
                         <CreditCard size={12} />
-                        <span className="text-[11px] font-medium">{getModeLabel(p.modePaiement)}</span>
+                        <span className="text-[11px] font-medium">{getModeLabel(p.mode)}</span>
                       </div>
                     </TableCell>
                     <TableCell className="text-right">

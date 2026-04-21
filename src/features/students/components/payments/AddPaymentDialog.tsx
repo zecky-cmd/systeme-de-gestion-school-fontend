@@ -24,14 +24,15 @@ import {
 } from "@/components/ui/select";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { RubriqueService } from "@/services/rubrique.service";
-import { PaiementService } from "@/services/paiement.service";
+import { PaiementService, ModePaiement } from "@/services/paiement.service";
+import { useAuthStore } from "@/store/authStore";
 import { toast } from "sonner";
 import { CreditCard, Loader2 } from "lucide-react";
 
 const paymentSchema = z.object({
   montant: z.string().min(1, "Le montant est requis"),
   rubriqueId: z.string().min(1, "La rubrique est requise"),
-  modePaiement: z.enum(["esp", "vrt", "chq", "mob"]),
+  mode: z.enum(["esp", "mobile", "cheque"]),
   datePaiement: z.string(),
   reference: z.string().optional(),
   commentaire: z.string().optional(),
@@ -47,6 +48,7 @@ interface AddPaymentDialogProps {
 
 export function AddPaymentDialog({ eleveId, open, onOpenChange }: AddPaymentDialogProps) {
   const queryClient = useQueryClient();
+  const { user } = useAuthStore();
   
   const { data: rubriques } = useQuery({
     queryKey: ["rubriques"],
@@ -59,7 +61,7 @@ export function AddPaymentDialog({ eleveId, open, onOpenChange }: AddPaymentDial
     defaultValues: {
       montant: "",
       rubriqueId: "",
-      modePaiement: "esp",
+      mode: "esp",
       datePaiement: new Date().toISOString().split('T')[0],
       reference: "",
       commentaire: "",
@@ -68,11 +70,15 @@ export function AddPaymentDialog({ eleveId, open, onOpenChange }: AddPaymentDial
 
   const onSubmit = async (data: PaymentFormValues) => {
     try {
+      if (!user?.id) throw new Error("Utilisateur non authentifié");
+
       await PaiementService.create({
-        ...data,
         eleveId,
         montant: parseInt(data.montant),
         rubriqueId: parseInt(data.rubriqueId),
+        mode: data.mode as ModePaiement,
+        encaisseParId: user.id,
+        reference: data.reference,
       });
 
       toast.success("Paiement enregistré avec succès !");
@@ -128,7 +134,7 @@ export function AddPaymentDialog({ eleveId, open, onOpenChange }: AddPaymentDial
             <Label className="text-xs font-bold uppercase">Rubrique</Label>
             <Select 
               value={watch("rubriqueId") || undefined} 
-              onValueChange={(val) => setValue("rubriqueId", val || "", { shouldValidate: true })}
+              onValueChange={(val) => val && setValue("rubriqueId", val, { shouldValidate: true })}
             >
               <SelectTrigger className="h-10">
                 <SelectValue placeholder="Sélectionner une rubrique" />
@@ -145,20 +151,19 @@ export function AddPaymentDialog({ eleveId, open, onOpenChange }: AddPaymentDial
           <div className="space-y-2">
             <Label className="text-xs font-bold uppercase">Mode de Paiement</Label>
             <Select 
-              value={watch("modePaiement") || undefined} 
-              onValueChange={(val: any) => setValue("modePaiement", val, { shouldValidate: true })}
+              value={watch("mode") || undefined} 
+              onValueChange={(val: any) => val && setValue("mode", val, { shouldValidate: true })}
             >
               <SelectTrigger className="h-10">
                 <SelectValue placeholder="Mode" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="esp">Espèces</SelectItem>
-                <SelectItem value="mob">Mobile Money</SelectItem>
-                <SelectItem value="vrt">Virement</SelectItem>
-                <SelectItem value="chq">Chèque</SelectItem>
+                <SelectItem value="mobile">Mobile Money</SelectItem>
+                <SelectItem value="cheque">Chèque</SelectItem>
               </SelectContent>
             </Select>
-            {errors.modePaiement && <p className="text-[10px] text-red-500 font-bold">{errors.modePaiement.message}</p>}
+            {errors.mode && <p className="text-[10px] text-red-500 font-bold">{errors.mode.message}</p>}
           </div>
 
           <div className="space-y-2">

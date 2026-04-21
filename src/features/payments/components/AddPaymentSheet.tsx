@@ -186,7 +186,7 @@ export function AddPaymentSheet({ open, onOpenChange }: AddPaymentSheetProps) {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-3">
               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Objet du frais</Label>
-              <Select value={rubriqueId} onValueChange={setRubriqueId}>
+              <Select value={rubriqueId} onValueChange={(val) => val && setRubriqueId(val)}>
                 <SelectTrigger className="h-10 rounded-xl bg-slate-50/50">
                   <SelectValue placeholder="Choisir..." />
                 </SelectTrigger>
