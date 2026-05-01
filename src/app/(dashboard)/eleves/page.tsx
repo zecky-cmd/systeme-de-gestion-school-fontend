@@ -44,6 +44,10 @@ export default function GestionElevesPage() {
   const [selectedClasse, setSelectedClasse] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
 
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
 
   const { data: eleves, isLoading, error } = useQuery({
     queryKey: ['eleves'],
@@ -138,10 +142,14 @@ export default function GestionElevesPage() {
 
         <ActionToolbar 
           searchPlaceholder="Rechercher par nom, matricule..."
-          onSearchChange={setSearchTerm}
+          onSearchChange={(val) => {
+            setSearchTerm(val);
+            setCurrentPage(1); // Reset page on search
+          }}
           onFilterChange={(key: string, val: string) => {
             if (key === "classe") setSelectedClasse(val);
             if (key === "statut") setSelectedStatus(val);
+            setCurrentPage(1); // Reset page on filter
           }}
           filters={[
             {
@@ -189,9 +197,15 @@ export default function GestionElevesPage() {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    filteredEleves?.map((eleve: any) => {
+                    (() => {
+                      const totalItems = filteredEleves?.length || 0;
+                      const totalPages = Math.ceil(totalItems / itemsPerPage);
+                      const startIndex = (currentPage - 1) * itemsPerPage;
+                      const paginatedEleves = filteredEleves?.slice(startIndex, startIndex + itemsPerPage);
 
-                      // Mapping flexible si les donnees viennent de User ou Eleve
+                      return paginatedEleves?.map((eleve: any) => {
+
+                        // Mapping flexible si les donnees viennent de User ou Eleve
                       const nom = eleve.nom || eleve.user?.nom || "Non renseigné";
                       const prenom = eleve.prenom || eleve.user?.prenom || "";
                       const fullNom = `${nom} ${prenom}`;
@@ -256,18 +270,39 @@ export default function GestionElevesPage() {
                           </TableCell>
                         </TableRow>
                       );
-                    })
+                    });
+                  })()
                   )}
                 </TableBody>
               </Table>
             </div>
             
             <div className="p-4 border-t border-border flex items-center justify-between text-sm">
-              <div className="text-muted-foreground">Affichage de {eleves?.length || 0} eleves</div>
+              <div className="text-muted-foreground">
+                Affichage de {filteredEleves?.length ? Math.min((currentPage - 1) * itemsPerPage + 1, filteredEleves.length) : 0} à {Math.min(currentPage * itemsPerPage, filteredEleves?.length || 0)} sur {filteredEleves?.length || 0} élèves
+              </div>
               <div className="flex gap-1">
-                <Button variant="outline" size="sm" disabled>Precedent</Button>
-                <Button variant="default" size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white">1</Button>
-                <Button variant="outline" size="sm">Suivant</Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1 || !filteredEleves?.length}
+                >
+                  Précédent
+                </Button>
+                
+                <div className="flex items-center gap-1 px-2">
+                  <span className="text-xs font-medium text-slate-600 dark:text-slate-400">Page {currentPage} sur {Math.max(1, Math.ceil((filteredEleves?.length || 0) / itemsPerPage))}</span>
+                </div>
+
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setCurrentPage(p => p + 1)}
+                  disabled={!filteredEleves || currentPage >= Math.ceil(filteredEleves.length / itemsPerPage)}
+                >
+                  Suivant
+                </Button>
               </div>
             </div>
           </div>
