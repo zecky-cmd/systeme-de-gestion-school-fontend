@@ -16,13 +16,16 @@ import {
   MoreHorizontal, 
   Eye, 
   Pencil, 
-  Trash2 
+  Trash2,
+  CreditCard,
+  FileText
 } from "lucide-react"; 
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { TableSkeleton } from "@/components/shared/TableSkeleton";
 import { ActionToolbar } from "@/components/shared/ActionToolbar";
 import { StatusBadge } from "@/components/shared/StatusBadge";
+import { ActionMenu } from "@/components/shared/ActionMenu";
 import { RoleGuard } from "@/components/auth/RoleGuard";
 
 import { StudentService, type Eleve } from "@/services/student.service";
@@ -249,23 +252,35 @@ export default function GestionElevesPage() {
                             <StatusBadge status={eleve.paiement || "Complet"} variant="payment" />
                           </TableCell>
                           <TableCell className="text-right">
-                            <div className="flex justify-end gap-2">
-                              <Button 
-                                onClick={() => handleView(eleve)} // Updated onClick
-                                variant="ghost" 
-                                size="icon" 
-                                className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                              >
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                              <Button 
-                                onClick={() => handleEdit(eleve)} // Updated onClick
-                                variant="ghost" 
-                                size="icon" 
-                                className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                              >
-                                <Pencil className="h-4 w-4" /> {/* Changed from Edit to Pencil */}
-                              </Button>
+                            <div className="flex justify-end">
+                              <ActionMenu items={[
+                                {
+                                  label: "Voir le profil",
+                                  icon: <Eye className="h-4 w-4" />,
+                                  onClick: () => handleView(eleve),
+                                },
+                                {
+                                  label: "Modifier",
+                                  icon: <Pencil className="h-4 w-4" />,
+                                  onClick: () => handleEdit(eleve),
+                                },
+                                {
+                                  label: "Situation financière",
+                                  icon: <CreditCard className="h-4 w-4" />,
+                                  onClick: () => handleView(eleve),
+                                },
+                                {
+                                  label: "Bulletin scolaire",
+                                  icon: <FileText className="h-4 w-4" />,
+                                  onClick: () => handleView(eleve),
+                                },
+                                {
+                                  label: "Supprimer",
+                                  icon: <Trash2 className="h-4 w-4" />,
+                                  onClick: () => {},
+                                  variant: "danger" as const,
+                                },
+                              ]} />
                             </div>
                           </TableCell>
                         </TableRow>
