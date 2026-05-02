@@ -4,7 +4,8 @@ import React from "react";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Enseignant } from "@/services/enseignant.service";
 import { Button } from "@/components/ui/button";
-import { Eye, Edit, Phone, Hash, Clock, School } from "lucide-react";
+import { Eye, Edit, Phone, Hash, Clock, School, Trash2, Calendar, FileText } from "lucide-react";
+import { ActionMenu } from "@/components/shared/ActionMenu";
 import { cn } from "@/lib/utils";
 
 interface EnseignantRowProps {
@@ -69,18 +70,23 @@ export function EnseignantRow({ item, hoveredCol, onHoverCol, onEdit, onView }: 
         onMouseEnter={() => onHoverCol(2)}
         onMouseLeave={() => onHoverCol(null)}
       >
-        <div className="flex flex-col">
-          <div className="flex items-center gap-1.5">
-            <School size={14} className="text-slate-400" />
-            <span className="text-sm font-bold text-slate-700 dark:text-slate-300">
-              {item.classes?.count || 0} classes
-            </span>
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-center gap-1.5 text-slate-400">
+            <School size={12} />
+            <span className="text-[10px] font-black uppercase tracking-widest">{item.classes?.count || 0} CLASSES</span>
           </div>
-          {item.classes?.noms && item.classes.noms.length > 0 && (
-            <span className="text-[10px] text-slate-400 mt-0.5 line-clamp-1">
-              {item.classes.noms.join(", ")}
-            </span>
-          )}
+          <div className="flex flex-wrap gap-1 max-w-[200px]">
+            {item.classes?.noms && item.classes.noms.slice(0, 3).map((classe, i) => (
+              <span key={i} className="px-1.5 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/30 text-[10px] font-bold text-emerald-600 border border-emerald-100 dark:border-emerald-800/30">
+                {classe}
+              </span>
+            ))}
+            {item.classes?.count && item.classes.count > 3 && (
+              <span className="px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-[10px] font-bold text-slate-500 border border-slate-200 dark:border-slate-700">
+                +{item.classes.count - 3}
+              </span>
+            )}
+          </div>
         </div>
       </TableCell>
 
@@ -147,23 +153,35 @@ export function EnseignantRow({ item, hoveredCol, onHoverCol, onEdit, onView }: 
         onMouseEnter={() => onHoverCol(7)}
         onMouseLeave={() => onHoverCol(null)}
       >
-        <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="h-8 w-8 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg"
-            onClick={() => onView && onView(item)}
-          >
-            <Eye size={16} />
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="h-8 w-8 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg"
-            onClick={() => onEdit && onEdit(item)}
-          >
-            <Edit size={16} />
-          </Button>
+        <div className="flex justify-end">
+          <ActionMenu items={[
+            {
+              label: "Voir la fiche",
+              icon: <Eye size={14} />,
+              onClick: () => onView && onView(item),
+            },
+            {
+              label: "Modifier l'enseignant",
+              icon: <Edit size={14} />,
+              onClick: () => onEdit && onEdit(item),
+            },
+            {
+              label: "Emploi du temps",
+              icon: <Calendar size={14} />,
+              onClick: () => {},
+            },
+            {
+              label: "Rapport d'activité",
+              icon: <FileText size={14} />,
+              onClick: () => {},
+            },
+            {
+              label: "Supprimer",
+              icon: <Trash2 size={14} />,
+              onClick: () => {},
+              variant: "danger",
+            },
+          ]} />
         </div>
       </TableCell>
     </TableRow>
