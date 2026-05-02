@@ -33,7 +33,7 @@ export function EnseignantFormFields({ form, isView }: EnseignantFormFieldsProps
               id="nom" 
               disabled={isView}
               placeholder="Ex: KOUASSI" 
-              className="h-11 font-bold border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900 focus:ring-emerald-500/20" 
+              className="h-11 font-black text-slate-900 dark:text-white border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900 focus:ring-emerald-500/20 placeholder:font-normal placeholder:text-slate-400/40" 
               {...register("nom")} 
             />
             {errors.nom && <p className="text-[10px] text-rose-500 font-bold">{errors.nom.message}</p>}
@@ -45,7 +45,7 @@ export function EnseignantFormFields({ form, isView }: EnseignantFormFieldsProps
               id="prenom" 
               disabled={isView}
               placeholder="Ex: Jean" 
-              className="h-11 font-bold" 
+              className="h-11 font-black text-slate-900 dark:text-white border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900 focus:ring-emerald-500/20 placeholder:font-normal placeholder:text-slate-400/40" 
               {...register("prenom")} 
             />
             {errors.prenom && <p className="text-[10px] text-rose-500 font-bold">{errors.prenom.message}</p>}
@@ -59,7 +59,7 @@ export function EnseignantFormFields({ form, isView }: EnseignantFormFieldsProps
             disabled={isView}
             type="email"
             placeholder="Ex: jean.kouassi@ecole.com" 
-            className="h-11 font-bold" 
+            className="h-11 font-black text-slate-900 dark:text-white border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900 focus:ring-emerald-500/20 placeholder:font-normal placeholder:text-slate-400/40" 
             {...register("email")} 
           />
           {errors.email && <p className="text-[10px] text-rose-500 font-bold">{errors.email.message}</p>}
@@ -76,7 +76,7 @@ export function EnseignantFormFields({ form, isView }: EnseignantFormFieldsProps
               id="matricule" 
               disabled={isView}
               placeholder="Ex: ENS24-001" 
-              className="h-11 font-bold" 
+              className="h-11 font-black text-slate-900 dark:text-white border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900 focus:ring-emerald-500/20 placeholder:font-normal placeholder:text-slate-400/40" 
               {...register("matricule")} 
             />
             {errors.matricule && <p className="text-[10px] text-rose-500 font-bold">{errors.matricule.message}</p>}
@@ -88,7 +88,7 @@ export function EnseignantFormFields({ form, isView }: EnseignantFormFieldsProps
               id="specialite" 
               disabled={isView}
               placeholder="Ex: Mathématiques" 
-              className="h-11 font-bold" 
+              className="h-11 font-black text-slate-900 dark:text-white border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900 focus:ring-emerald-500/20 placeholder:font-normal placeholder:text-slate-400/40" 
               {...register("specialite")} 
             />
             {errors.specialite && <p className="text-[10px] text-rose-500 font-bold">{errors.specialite.message}</p>}
@@ -102,7 +102,7 @@ export function EnseignantFormFields({ form, isView }: EnseignantFormFieldsProps
               id="telephone" 
               disabled={isView}
               placeholder="Ex: 0102030405" 
-              className="h-11 font-bold" 
+              className="h-11 font-black text-slate-900 dark:text-white border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900 focus:ring-emerald-500/20 placeholder:font-normal placeholder:text-slate-400/40" 
               {...register("telephone")} 
             />
             {errors.telephone && <p className="text-[10px] text-rose-500 font-bold">{errors.telephone.message}</p>}
