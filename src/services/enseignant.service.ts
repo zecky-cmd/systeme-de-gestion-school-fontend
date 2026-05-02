@@ -1,6 +1,8 @@
 import api from "@/lib/axios";
 import { User } from "@/features/auth/types";
 
+export type TypeContrat = "permanent" | "vacataire";
+
 export interface Enseignant {
   id: number;
   userId: number;
@@ -8,11 +10,31 @@ export interface Enseignant {
   specialite?: string;
   telephone?: string;
   statut: "actif" | "inact";
-  user?: User; // Inclut les infos de l'utilisateur (nom, prénom, email, etc.)
-  _count?: {
-    classesPrincipales: number;
-    matieres: number;
+  typeContrat?: TypeContrat;
+  user?: User;
+
+  // Champs enrichis par le backend (analytique)
+  matieres?: string[];
+  classes?: {
+    count: number;
+    noms: string[];
   };
+  heuresSemaine?: number;
+  classesPrincipales?: string[];
+}
+
+export interface MatiereStats {
+  matiereId: number;
+  nomMatiere: string;
+  nombreClasses: number;
+  nombreEnseignants: number;
+  totalHeuresSemaine: number;
+  enseignants: {
+    id: number;
+    nom: string;
+    prenom: string;
+    initiales: string;
+  }[];
 }
 
 export interface CreateEnseignantCombinedDto {
@@ -20,18 +42,19 @@ export interface CreateEnseignantCombinedDto {
   nom: string;
   prenom: string;
   email: string;
-  password?: string; // Optionnel si on génère un mot de passe par défaut
+  password?: string;
 
   // Infos Enseignant
   matricule: string;
   specialite: string;
   telephone: string;
   statut: "actif" | "inact";
+  typeContrat: TypeContrat;
 }
 
 export const EnseignantService = {
   /**
-   * Récupérer tous les enseignants
+   * Récupérer tous les enseignants (avec données enrichies)
    */
   getAll: async (): Promise<Enseignant[]> => {
     const response = await api.get("/enseignant");
@@ -47,6 +70,14 @@ export const EnseignantService = {
   },
 
   /**
+   * Récupérer les statistiques par matière
+   */
+  getStatsByMatiere: async (): Promise<MatiereStats[]> => {
+    const response = await api.get("/enseignant/stats/matieres");
+    return response.data;
+  },
+
+  /**
    * Créer un enseignant (Processus combiné : User + Enseignant)
    */
   createCombined: async (data: CreateEnseignantCombinedDto): Promise<Enseignant> => {
@@ -55,11 +86,11 @@ export const EnseignantService = {
       nom: data.nom,
       prenom: data.prenom,
       email: data.email,
-      password: data.password || "Enseignant@123", // Mot de passe par défaut sécurisé
+      password: data.password || "Enseignant@123",
       role: "ens"
     });
 
-    const newUser = userResponse.data.user || userResponse.data; // Dépend de la réponse exacte de l'API
+    const newUser = userResponse.data.user || userResponse.data;
 
     // 2. Créer l'Enseignant lié
     const enseignantResponse = await api.post("/enseignant", {
@@ -67,7 +98,8 @@ export const EnseignantService = {
       matricule: data.matricule,
       specialite: data.specialite,
       telephone: data.telephone,
-      statut: data.statut
+      statut: data.statut,
+      typeContrat: data.typeContrat
     });
 
     return enseignantResponse.data;
@@ -91,7 +123,8 @@ export const EnseignantService = {
       matricule: data.matricule,
       specialite: data.specialite,
       telephone: data.telephone,
-      statut: data.statut
+      statut: data.statut,
+      typeContrat: data.typeContrat
     });
 
     return response.data;
