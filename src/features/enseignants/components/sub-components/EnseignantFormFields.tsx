@@ -107,7 +107,9 @@ export function EnseignantFormFields({ form, isView }: EnseignantFormFieldsProps
             />
             {errors.telephone && <p className="text-[10px] text-rose-500 font-bold">{errors.telephone.message}</p>}
           </div>
+        </div>
 
+        <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Statut</Label>
             <Select 
@@ -121,6 +123,23 @@ export function EnseignantFormFields({ form, isView }: EnseignantFormFieldsProps
               <SelectContent>
                 <SelectItem value="actif">Actif</SelectItem>
                 <SelectItem value="inact">Inactif</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Type de Contrat</Label>
+            <Select 
+              disabled={isView}
+              value={watch("typeContrat")} 
+              onValueChange={(val) => val && setValue("typeContrat", val as "permanent" | "vacataire")}
+            >
+              <SelectTrigger className="h-11 font-bold border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900">
+                <SelectValue placeholder="Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="permanent">Permanent</SelectItem>
+                <SelectItem value="vacataire">Vacataire</SelectItem>
               </SelectContent>
             </Select>
           </div>
