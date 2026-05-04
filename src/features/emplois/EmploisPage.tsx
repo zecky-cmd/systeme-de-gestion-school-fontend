@@ -40,6 +40,8 @@ export function EmploisPage() {
     openAffModal, createAff, deleteAff, isPending: isAffPending, isDeleting 
   } = useAffectations(selectedClasseId);
 
+  const selectedClasseName = classes.find(c => c.id.toString() === selectedClasseId)?.nom || "";
+
   return (
     <div className="flex-1 flex flex-col bg-[#F8FAFC] overflow-hidden">
       <EmploisTopBar 
@@ -53,6 +55,7 @@ export function EmploisPage() {
       <AnimatePresence mode="wait">
         {activeTab === "planning" ? (
           <PlanningView 
+            selectedClasseName={selectedClasseName}
             slots={slots} 
             onAddCourse={openAddModal} 
             onDeleteCourse={deleteSlot} 

@@ -24,7 +24,7 @@ export function EmploisTopBar({
   classes 
 }: EmploisTopBarProps) {
   return (
-    <div className="p-4 lg:px-8 border-b border-slate-200 bg-white flex items-center justify-between shadow-sm relative z-10">
+    <div className="p-4 lg:px-8 border-b border-slate-200 bg-white flex items-center justify-between shadow-sm relative z-10 print:hidden">
       <div className="flex items-center gap-6">
         <div>
           <h1 className="text-xl font-black text-slate-900 tracking-tight">Emplois du temps</h1>
