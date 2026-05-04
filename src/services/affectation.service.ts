@@ -30,5 +30,13 @@ export const AffectationService = {
   getOne: async (id: number): Promise<AffectationMatiere> => {
     const response = await api.get(`/matiere-niveau/${id}`);
     return response.data;
+  },
+
+  /**
+   * Créer une nouvelle affectation (Matière-Niveau)
+   */
+  create: async (data: Partial<AffectationMatiere>): Promise<AffectationMatiere> => {
+    const response = await api.post("/matiere-niveau", data);
+    return response.data;
   }
 };
