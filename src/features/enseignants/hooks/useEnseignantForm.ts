@@ -11,7 +11,7 @@ export const enseignantSchema = z.object({
   prenom: z.string().min(2, "Le prénom est requis"),
   email: z.string().email("Email invalide"),
   matricule: z.string().min(2, "Le matricule est requis"),
-  specialite: z.string().min(2, "La spécialité est requise"),
+  specialites: z.string().min(2, "La spécialité est requise"),
   telephone: z.string().min(8, "Numéro invalide"),
   statut: z.enum(["actif", "inact"]),
   typeContrat: z.enum(["permanent", "vacataire"]),
@@ -36,7 +36,7 @@ export function useEnseignantForm({ mode, initialData, open, onOpenChange }: Use
       prenom: "",
       email: "",
       matricule: "",
-      specialite: "",
+      specialites: "",
       telephone: "",
       statut: "actif",
       typeContrat: "permanent",
@@ -50,7 +50,7 @@ export function useEnseignantForm({ mode, initialData, open, onOpenChange }: Use
         prenom: initialData.user?.prenom || "",
         email: initialData.user?.email || "",
         matricule: initialData.matricule || "",
-        specialite: initialData.specialite || "",
+        specialites: initialData.specialites?.join(", ") || "",
         telephone: initialData.telephone || "",
         statut: initialData.statut,
         typeContrat: initialData.typeContrat || "permanent",
@@ -61,7 +61,7 @@ export function useEnseignantForm({ mode, initialData, open, onOpenChange }: Use
         prenom: "",
         email: "",
         matricule: "",
-        specialite: "",
+        specialites: "",
         telephone: "",
         statut: "actif",
         typeContrat: "permanent",
@@ -71,10 +71,15 @@ export function useEnseignantForm({ mode, initialData, open, onOpenChange }: Use
 
   const upsertMutation = useMutation({
     mutationFn: async (data: EnseignantFormValues) => {
+      const payload: any = {
+        ...data,
+        specialites: data.specialites.split(",").map(s => s.trim()).filter(s => s !== "")
+      };
+
       if (mode === "edit" && initialData) {
-        return EnseignantService.update(initialData.id, initialData.userId, data);
+        return EnseignantService.update(initialData.id, initialData.userId, payload);
       } else {
-        return EnseignantService.createCombined(data);
+        return EnseignantService.createCombined(payload);
       }
     },
     onSuccess: () => {

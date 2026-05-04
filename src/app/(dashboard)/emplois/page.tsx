@@ -106,10 +106,14 @@ export default function EmploisPage() {
   const { data: classes = [] } = useQuery({
     queryKey: ["classes"],
     queryFn: () => ClasseService.getAll(),
-    onSuccess: (data) => {
-      if (data.length > 0 && !selectedClasseId) setSelectedClasseId(data[0].id.toString());
-    }
   });
+
+  // Initialisation de la classe par défaut
+  useEffect(() => {
+    if (classes && classes.length > 0 && !selectedClasseId) {
+      setSelectedClasseId(classes[0].id.toString());
+    }
+  }, [classes, selectedClasseId]);
 
   // 2. Fetch Affectations
   const { data: affectations = [], isLoading: isAffLoading } = useQuery({
@@ -126,8 +130,8 @@ export default function EmploisPage() {
   });
 
   // 4. Global Data
-  const { data: allMatieres = [] } = useQuery({ queryKey: ["matieres"], queryFn: MatiereService.getAll });
-  const { data: allEnseignants = [] } = useQuery({ queryKey: ["enseignants"], queryFn: EnseignantService.getAll });
+  const { data: allMatieres = [] } = useQuery({ queryKey: ["matieres"], queryFn: () => MatiereService.getAll() });
+  const { data: allEnseignants = [] } = useQuery({ queryKey: ["enseignants"], queryFn: () => EnseignantService.getAll() });
 
   // --- LOGIQUE DE FILTRAGE ---
 
@@ -241,7 +245,7 @@ export default function EmploisPage() {
         </div>
         
         <div className="flex items-center gap-4">
-          <Select value={selectedClasseId} onValueChange={setSelectedClasseId}>
+          <Select value={selectedClasseId} onValueChange={(v) => setSelectedClasseId(v || "")}>
             <SelectTrigger className="w-44 h-10 rounded-xl border-slate-200 bg-white font-bold text-slate-700 text-[11px] shadow-sm uppercase">
               <SelectValue placeholder="Classe" />
             </SelectTrigger>
@@ -392,7 +396,7 @@ export default function EmploisPage() {
           <div className="py-6 space-y-5">
             <div className="space-y-2">
               <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] ml-1">Matière</label>
-              <Select value={formData.matiereId} onValueChange={(v) => setFormData({...formData, matiereId: v, affectationId: ""})}>
+              <Select value={formData.matiereId} onValueChange={(v) => setFormData({...formData, matiereId: v || "", affectationId: ""})}>
                 <SelectTrigger className="h-12 rounded-2xl border-slate-100 bg-slate-50 font-black text-[11px] uppercase tracking-tight shadow-sm">
                   <SelectValue placeholder="Sélectionner une matière..." />
                 </SelectTrigger>
@@ -411,7 +415,7 @@ export default function EmploisPage() {
 
             <div className="space-y-2">
               <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] ml-1">Professeur</label>
-              <Select disabled={!formData.matiereId} value={formData.affectationId} onValueChange={(v) => setFormData({...formData, affectationId: v})}>
+              <Select disabled={!formData.matiereId} value={formData.affectationId} onValueChange={(v) => setFormData({...formData, affectationId: v || ""})}>
                 <SelectTrigger className="h-12 rounded-2xl border-slate-100 bg-slate-50 font-black text-[11px] shadow-sm">
                   <SelectValue placeholder={formData.matiereId ? "Choisir l'enseignant..." : "Matière requise"} />
                 </SelectTrigger>
@@ -428,14 +432,14 @@ export default function EmploisPage() {
             <div className="grid grid-cols-2 gap-4">
                <div className="space-y-2">
                   <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] ml-1">Jour</label>
-                  <Select value={formData.day} onValueChange={(v) => setFormData({...formData, day: v as DayOfWeek})}>
+                  <Select value={formData.day} onValueChange={(v) => setFormData({...formData, day: (v || "lun") as DayOfWeek})}>
                     <SelectTrigger className="h-12 rounded-2xl border-slate-100 bg-slate-50 font-black text-[11px] shadow-sm"><SelectValue /></SelectTrigger>
                     <SelectContent className="rounded-2xl font-bold">{Object.entries(DAYS_MAP).map(([k,v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}</SelectContent>
                   </Select>
                </div>
                <div className="space-y-2">
                   <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] ml-1">Créneau</label>
-                  <Select value={formData.hourRange} onValueChange={(v) => setFormData({...formData, hourRange: v})}>
+                  <Select value={formData.hourRange} onValueChange={(v) => setFormData({...formData, hourRange: v || ""})}>
                     <SelectTrigger className="h-12 rounded-2xl border-slate-100 bg-slate-50 font-black text-[11px] shadow-sm"><SelectValue /></SelectTrigger>
                     <SelectContent className="rounded-2xl font-bold">{GRID_HOURS.filter(h => h !== "PAUSE").map(h => <SelectItem key={h} value={h}>{h}</SelectItem>)}</SelectContent>
                   </Select>
@@ -444,7 +448,7 @@ export default function EmploisPage() {
 
             <div className="space-y-2">
               <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] ml-1">Salle</label>
-              <Select value={formData.room} onValueChange={(v) => setFormData({...formData, room: v})}>
+              <Select value={formData.room} onValueChange={(v) => setFormData({...formData, room: v || ""})}>
                 <SelectTrigger className="h-12 rounded-2xl border-slate-100 bg-slate-50 font-black text-[11px] shadow-sm"><SelectValue placeholder="Choisir une salle..." /></SelectTrigger>
                 <SelectContent className="rounded-2xl font-bold uppercase">
                   {["S. 101", "S. 102", "S. 201", "Labo 1", "Labo 2", "Terrain"].map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
@@ -473,7 +477,7 @@ export default function EmploisPage() {
           <div className="py-8 space-y-6">
             <div className="space-y-2">
               <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] ml-1">Matière</label>
-              <Select value={affData.matiereId} onValueChange={(v) => setAffData({...affData, matiereId: v, enseignantId: ""})}>
+              <Select value={affData.matiereId} onValueChange={(v) => setAffData({...affData, matiereId: v || "", enseignantId: ""})}>
                 <SelectTrigger className="h-12 rounded-2xl border-slate-100 bg-slate-50 font-black text-[11px] uppercase tracking-tight shadow-sm"><SelectValue placeholder="Choisir la matière" /></SelectTrigger>
                 <SelectContent className="rounded-2xl font-bold uppercase">
                   {allMatieres.map(m => <SelectItem key={m.id} value={m.id.toString()}>{m.nom}</SelectItem>)}
@@ -483,7 +487,7 @@ export default function EmploisPage() {
 
             <div className="space-y-2">
               <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] ml-1">Enseignant</label>
-              <Select disabled={!affData.matiereId} value={affData.enseignantId} onValueChange={(v) => setAffData({...affData, enseignantId: v})}>
+              <Select disabled={!affData.matiereId} value={affData.enseignantId} onValueChange={(v) => setAffData({...affData, enseignantId: v || ""})}>
                 <SelectTrigger className="h-12 rounded-2xl border-slate-100 bg-slate-50 font-black text-[11px] uppercase shadow-sm"><SelectValue placeholder="Choisir l'enseignant" /></SelectTrigger>
                 <SelectContent className="rounded-2xl font-bold uppercase">
                   {filteredEnseignantsForAff.map(e => (
@@ -497,7 +501,7 @@ export default function EmploisPage() {
 
             <div className="space-y-2">
               <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] ml-1">Coefficient</label>
-              <Select value={affData.coefficient} onValueChange={(v) => setAffData({...affData, coefficient: v})}>
+              <Select value={affData.coefficient} onValueChange={(v) => setAffData({...affData, coefficient: v || ""})}>
                 <SelectTrigger className="h-12 rounded-2xl border-slate-100 bg-slate-50 font-black text-[11px] shadow-sm"><SelectValue /></SelectTrigger>
                 <SelectContent className="rounded-2xl font-bold">
                   {["1", "2", "3", "4", "5"].map(c => <SelectItem key={c} value={c}>Coeff {c}</SelectItem>)}

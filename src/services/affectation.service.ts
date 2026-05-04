@@ -15,6 +15,10 @@ export interface AffectationMatiere {
   // Données enrichies
   matiere?: Matiere;
   enseignant?: Enseignant;
+  classe?: {
+    id: number;
+    nom: string;
+  };
 }
 
 export const AffectationService = {
