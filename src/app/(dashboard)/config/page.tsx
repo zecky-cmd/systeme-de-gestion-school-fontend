@@ -1,13 +1,5 @@
-"use client";
+import { ConfigPage } from "@/features/config/ConfigPage";
 
-import React from "react";
-import { UnderConstruction } from "@/components/shared/UnderConstruction";
-
-export default function ConfigPage() {
-  return (
-    <UnderConstruction 
-      title="Configuration Système" 
-      description="Les paramètres avancés de l'établissement, incluant la gestion de l'année scolaire et des rôles, sont en cours de configuration."
-    />
-  );
+export default function Page() {
+  return <ConfigPage />;
 }
