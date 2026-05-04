@@ -5,16 +5,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useConfigPage } from "./hooks/useConfigPage";
 import { useSchoolConfig } from "./hooks/useSchoolConfig";
 import { useAcademicYear } from "./hooks/useAcademicYear";
-import { usePedagogy } from "./hooks/usePedagogy";
-import { useFinance } from "./hooks/useFinance";
-import { useUserManagement } from "./hooks/useUserManagement";
 import { ConfigTopBar } from "./components/ConfigTopBar";
 import { EtablissementView } from "./components/EtablissementView";
 import { AcademicYearView } from "./components/AcademicYearView";
-import { PedagogyView } from "./components/PedagogyView";
-import { FinanceView } from "./components/FinanceView";
-import { UserManagementView } from "./components/UserManagementView";
-import { SecurityView } from "./components/SecurityView";
 
 export function ConfigPage() {
   const { activeTab, setActiveTab } = useConfigPage();
@@ -35,24 +28,12 @@ export function ConfigPage() {
     isSavingSeries
   } = useAcademicYear();
 
-  const {
-    subjects,
-    noteTypes,
-    updateCoefficients,
-    updateNoteTypes,
-    isSaving: isSavingPedagogy
-  } = usePedagogy();
-
-  const {
-    fees,
-    updateFee
-  } = useFinance();
-
-  const {
-    users,
-    permissions,
-    togglePermission
-  } = useUserManagement();
+  // Force activeTab to only be etablissement or annee if it was something else
+  React.useEffect(() => {
+    if (activeTab !== "etablissement" && activeTab !== "annee") {
+      setActiveTab("etablissement");
+    }
+  }, [activeTab, setActiveTab]);
 
   return (
     <div className="flex-1 flex flex-col bg-[oklch(0.98_0.002_240)] min-h-screen">
@@ -93,59 +74,6 @@ export function ConfigPage() {
                 onUpdateSeries={updateSeries}
                 isSavingSeries={isSavingSeries}
               />
-            </motion.div>
-          )}
-          {activeTab === "pedagogie" && (
-            <motion.div 
-              key="pedagogie" 
-              initial={{ opacity: 0, x: -20 }} 
-              animate={{ opacity: 1, x: 0 }} 
-              exit={{ opacity: 0, x: 20 }}
-            >
-              <PedagogyView 
-                subjects={subjects}
-                noteTypes={noteTypes}
-                onUpdateCoefficients={updateCoefficients}
-                onUpdateNoteTypes={updateNoteTypes}
-                isSaving={isSavingPedagogy}
-              />
-            </motion.div>
-          )}
-          {activeTab === "frais" && (
-            <motion.div 
-              key="frais" 
-              initial={{ opacity: 0, x: -20 }} 
-              animate={{ opacity: 1, x: 0 }} 
-              exit={{ opacity: 0, x: 20 }}
-            >
-              <FinanceView 
-                fees={fees}
-                onUpdateFee={updateFee}
-              />
-            </motion.div>
-          )}
-          {activeTab === "utilisateurs" && (
-            <motion.div 
-              key="utilisateurs" 
-              initial={{ opacity: 0, x: -20 }} 
-              animate={{ opacity: 1, x: 0 }} 
-              exit={{ opacity: 0, x: 20 }}
-            >
-              <UserManagementView 
-                users={users}
-                permissions={permissions}
-                onTogglePermission={togglePermission}
-              />
-            </motion.div>
-          )}
-          {activeTab === "securite" && (
-            <motion.div 
-              key="securite" 
-              initial={{ opacity: 0, x: -20 }} 
-              animate={{ opacity: 1, x: 0 }} 
-              exit={{ opacity: 0, x: 20 }}
-            >
-              <SecurityView />
             </motion.div>
           )}
         </AnimatePresence>

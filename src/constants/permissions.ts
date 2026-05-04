@@ -17,6 +17,10 @@ export const NAV_PERMISSIONS: Record<string, UserRole[]> = {
   "/absences": ["adm", "dir", "ens", "par", "elv"],
   "/messagerie": ["adm", "dir", "ens", "par", "elv"],
   "/config": ["adm"],
+  "/config/pedagogie": ["adm"],
+  "/config/frais": ["adm"],
+  "/config/utilisateurs": ["adm"],
+  "/config/securite": ["adm"],
 };
 
 export const ACTION_PERMISSIONS = {

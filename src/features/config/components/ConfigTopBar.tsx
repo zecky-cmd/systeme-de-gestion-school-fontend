@@ -15,7 +15,7 @@ export function ConfigTopBar({ activeTab, setActiveTab }: ConfigTopBarProps) {
       </div>
 
       <div className="flex items-center gap-1 bg-slate-200/50 p-1 rounded-lg w-fit h-auto">
-        {CONFIG_TABS.map((tab) => {
+        {CONFIG_TABS.filter(t => t.id === "etablissement" || t.id === "annee").map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
           
