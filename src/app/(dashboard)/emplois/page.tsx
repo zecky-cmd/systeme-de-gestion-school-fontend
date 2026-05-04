@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
@@ -86,16 +86,35 @@ export default function EmploisPage() {
   const [formData, setFormData] = useState({
     day: "lun" as DayOfWeek,
     hourRange: "07h30 - 08h30",
-    affectationId: "",
+    matiereId: "",
+    affectationId: "", // On stockera l'ID de l'affectation finale ici
     room: ""
   });
 
   // Affectation Form State
   const [affData, setAffData] = useState({
+    classeId: "",
     matiereId: "",
     enseignantId: "",
     coefficient: "2"
   });
+
+  const openAffModal = () => {
+    setAffData({
+      classeId: selectedClasseId,
+      matiereId: "",
+      enseignantId: "",
+      coefficient: "2"
+    });
+    setIsAffModalOpen(true);
+  };
+
+  // Synchroniser la classe du formulaire avec la classe sélectionnée globalement
+  useEffect(() => {
+    if (selectedClasseId && !affData.classeId) {
+      setAffData(prev => ({ ...prev, classeId: selectedClasseId }));
+    }
+  }, [selectedClasseId, isAffModalOpen]);
 
   // 1. Fetch Classes
   const { data: classes = [] } = useQuery({
@@ -106,7 +125,7 @@ export default function EmploisPage() {
     }
   });
 
-  // 2. Fetch Affectations
+  // 2. Fetch Affectations (La source pour filtrer le modal)
   const { data: affectations = [], isLoading: isAffLoading } = useQuery({
     queryKey: ["affectations", selectedClasseId],
     queryFn: () => AffectationService.getAll(parseInt(selectedClasseId)),
@@ -120,9 +139,32 @@ export default function EmploisPage() {
     enabled: !!selectedClasseId
   });
 
-  // 4. Fetch Global Data
+  // 4. Global Data
   const { data: allMatieres = [] } = useQuery({ queryKey: ["matieres"], queryFn: MatiereService.getAll });
   const { data: allEnseignants = [] } = useQuery({ queryKey: ["enseignants"], queryFn: EnseignantService.getAll });
+
+  // --- Logique de filtrage pour le modal d'ajout de cours ---
+  
+  // Liste des matières qui ont au moins une affectation pour cette classe
+  const availableMatieresInModal = useMemo(() => {
+    const uniqueMatiereIds = Array.from(new Set(affectations.map(a => a.matiereId)));
+    return allMatieres.filter(m => uniqueMatiereIds.includes(m.id));
+  }, [affectations, allMatieres]);
+
+  // Liste des affectations (profs) pour la matière sélectionnée dans le modal
+  const availableAffectationsForMatiere = useMemo(() => {
+    if (!formData.matiereId) return [];
+    return affectations.filter(a => a.matiereId.toString() === formData.matiereId);
+  }, [formData.matiereId, affectations]);
+
+  // Effet pour auto-sélectionner le prof si un seul est affecté
+  useEffect(() => {
+    if (availableAffectationsForMatiere.length === 1) {
+      setFormData(prev => ({ ...prev, affectationId: availableAffectationsForMatiere[0].id.toString() }));
+    } else {
+      setFormData(prev => ({ ...prev, affectationId: "" }));
+    }
+  }, [availableAffectationsForMatiere]);
 
   // Mutations
   const createSlotMutation = useMutation({
@@ -135,11 +177,20 @@ export default function EmploisPage() {
   });
 
   const createAffMutation = useMutation({
-    mutationFn: (data: any) => AffectationService.create({ ...data, classeId: parseInt(selectedClasseId) }),
+    mutationFn: (data: any) => {
+      console.log("Envoi de l'affectation au backend:", data);
+      return AffectationService.create(data);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["affectations"] });
       setIsAffModalOpen(false);
+      setAffData({ matiereId: "", enseignantId: "", coefficient: "2", classeId: selectedClasseId });
       toast.success("Enseignant affecté avec succès !");
+    },
+    onError: (error: any) => {
+      console.error("Erreur API Affectation:", error);
+      const message = error.response?.data?.message || "Erreur lors de l'affectation";
+      toast.error(message);
     }
   });
 
@@ -147,6 +198,7 @@ export default function EmploisPage() {
     setFormData({
       day: dayLabel ? REV_DAYS_MAP[dayLabel] : "lun",
       hourRange: hourRange || "07h30 - 08h30",
+      matiereId: "",
       affectationId: "",
       room: ""
     });
@@ -168,7 +220,7 @@ export default function EmploisPage() {
   return (
     <div className="flex-1 flex flex-col bg-[#F8FAFC] overflow-hidden">
       {/* --- TOP BAR --- */}
-      <div className="p-4 lg:px-8 border-b border-slate-200 bg-white flex items-center justify-between">
+      <div className="p-4 lg:px-8 border-b border-slate-200 bg-white flex items-center justify-between shadow-sm relative z-10">
         <div className="flex items-center gap-6">
           <div>
             <h1 className="text-xl font-black text-slate-900 tracking-tight">Emplois du temps</h1>
@@ -221,7 +273,7 @@ export default function EmploisPage() {
                   <Button variant="outline" className="h-9 rounded-lg border-slate-200 font-bold px-4 text-xs gap-2">
                     <Printer size={16} /> Imprimer
                   </Button>
-                  <Button onClick={() => openAddModal()} className="h-9 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-black px-5 text-xs gap-2">
+                  <Button onClick={() => openAddModal()} className="h-9 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-black px-5 text-xs gap-2 shadow-md">
                     <Plus size={18} /> Ajouter un cours
                   </Button>
                </div>
@@ -247,14 +299,14 @@ export default function EmploisPage() {
                               {hourRange === "PAUSE" ? (
                                 <div className="flex items-center justify-center h-full text-[9px] font-bold text-slate-300 italic">Pause</div>
                               ) : slot ? (
-                                <div className={cn("absolute inset-1.5 rounded-xl border p-2.5 flex flex-col justify-between shadow-sm", COLORS_PALETTE[slot.id % COLORS_PALETTE.length])}>
+                                <div className={cn("absolute inset-1.5 rounded-xl border p-2.5 flex flex-col justify-between shadow-sm transition-all hover:scale-[1.02]", COLORS_PALETTE[slot.id % COLORS_PALETTE.length])}>
                                   <div>
-                                    <h4 className="text-[10px] font-black uppercase tracking-tight">{slot.matiereNiveau?.matiere?.nom}</h4>
+                                    <h4 className="text-[10px] font-black uppercase tracking-tight line-clamp-1">{slot.matiereNiveau?.matiere?.nom}</h4>
                                     <p className="text-[9px] font-bold opacity-80 mt-0.5">{slot.matiereNiveau?.enseignant?.user?.nom}</p>
                                   </div>
-                                  <div className="text-[8px] font-black opacity-60 flex justify-between">
-                                    <span>{slot.salle}</span>
-                                    <X size={10} className="opacity-0 group-hover:opacity-100 cursor-pointer" onClick={() => ScheduleService.delete(slot.id).then(() => queryClient.invalidateQueries({queryKey:["creneaux"]}))} />
+                                  <div className="text-[8px] font-black opacity-60 flex justify-between items-center">
+                                    <span className="flex items-center gap-1"><MapPin size={8} /> {slot.salle}</span>
+                                    <X size={10} className="opacity-0 group-hover:opacity-100 cursor-pointer hover:text-rose-500 transition-all" onClick={() => ScheduleService.delete(slot.id).then(() => queryClient.invalidateQueries({queryKey:["creneaux"]}))} />
                                   </div>
                                 </div>
                               ) : (
@@ -299,7 +351,7 @@ export default function EmploisPage() {
                             <BookOpen size={20} />
                          </div>
                          <div>
-                            <h4 className="text-sm font-black text-slate-900">{aff.matiere?.nom}</h4>
+                            <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">{aff.matiere?.nom}</h4>
                             <p className="text-xs font-bold text-slate-400">{aff.enseignant?.user?.nom} {aff.enseignant?.user?.prenom}</p>
                          </div>
                       </div>
@@ -321,32 +373,53 @@ export default function EmploisPage() {
         )}
       </AnimatePresence>
 
-      {/* --- MODAL AJOUT COURS (Filtre par affectations) --- */}
+      {/* --- MODAL AJOUT COURS (Separated Matiere & Prof) --- */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-[480px] rounded-[2.5rem] p-8 border-none shadow-2xl">
           <DialogHeader className="pb-6 border-b border-slate-50">
              <DialogTitle className="text-lg font-black text-slate-900">Ajouter un cours</DialogTitle>
-             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Uniquement les matières affectées</p>
+             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Filtre intelligent par affectation</p>
           </DialogHeader>
 
           <div className="py-6 space-y-5">
+            {/* 1. Sélection de la Matière */}
             <div className="space-y-2">
               <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Matière</label>
-              <Select value={formData.affectationId} onValueChange={(v) => setFormData({...formData, affectationId: v})}>
-                <SelectTrigger className="h-12 rounded-xl border-slate-100 bg-slate-50 font-bold text-xs">
-                  <SelectValue placeholder="Sélectionner une affectation..." />
+              <Select value={formData.matiereId} onValueChange={(v) => setFormData({...formData, matiereId: v, affectationId: ""})}>
+                <SelectTrigger className="h-12 rounded-xl border-slate-100 bg-slate-50 font-bold text-xs uppercase">
+                  <SelectValue placeholder="Sélectionner une matière..." />
                 </SelectTrigger>
-                <SelectContent className="rounded-xl font-bold">
-                  {affectations.map(aff => (
-                    <SelectItem key={aff.id} value={aff.id.toString()}>
+                <SelectContent className="rounded-xl font-bold uppercase">
+                  {availableMatieresInModal.map(m => (
+                    <SelectItem key={m.id} value={m.id.toString()}>
                       <div className="flex items-center gap-2">
-                         <div className="h-2 w-2 rounded-full bg-emerald-500"></div>
-                         <span>{aff.matiere?.nom}</span>
-                         <span className="text-slate-400 font-medium">— {aff.enseignant?.user?.nom}</span>
+                         <div className="h-2 w-2 rounded-full" style={{ backgroundColor: m.couleur || "#10b981" }}></div>
+                         {m.nom}
                       </div>
                     </SelectItem>
                   ))}
-                  {affectations.length === 0 && <div className="p-2 text-[10px] text-rose-500 font-bold">Aucune affectation trouvée pour cette classe.</div>}
+                  {availableMatieresInModal.length === 0 && <div className="p-2 text-[10px] text-rose-500 font-bold italic">Aucune matière affectée à cette classe.</div>}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* 2. Sélection du Professeur (Filtré par matière) */}
+            <div className="space-y-2">
+              <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Professeur</label>
+              <Select 
+                disabled={!formData.matiereId} 
+                value={formData.affectationId} 
+                onValueChange={(v) => setFormData({...formData, affectationId: v})}
+              >
+                <SelectTrigger className="h-12 rounded-xl border-slate-100 bg-slate-50 font-bold text-xs uppercase">
+                  <SelectValue placeholder={formData.matiereId ? "Choisir l'enseignant..." : "Sélectionnez d'abord une matière"} />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl font-bold uppercase">
+                  {availableAffectationsForMatiere.map(aff => (
+                    <SelectItem key={aff.id} value={aff.id.toString()}>
+                      {aff.enseignant?.user?.nom} {aff.enseignant?.user?.prenom}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -356,14 +429,14 @@ export default function EmploisPage() {
                   <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Jour</label>
                   <Select value={formData.day} onValueChange={(v) => setFormData({...formData, day: v as DayOfWeek})}>
                     <SelectTrigger className="h-12 rounded-xl border-slate-100 bg-slate-50 font-bold text-xs"><SelectValue /></SelectTrigger>
-                    <SelectContent className="rounded-xl">{Object.entries(DAYS_MAP).map(([k,v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}</SelectContent>
+                    <SelectContent className="rounded-xl font-bold">{Object.entries(DAYS_MAP).map(([k,v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}</SelectContent>
                   </Select>
                </div>
                <div className="space-y-2">
                   <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Heure</label>
                   <Select value={formData.hourRange} onValueChange={(v) => setFormData({...formData, hourRange: v})}>
                     <SelectTrigger className="h-12 rounded-xl border-slate-100 bg-slate-50 font-bold text-xs"><SelectValue /></SelectTrigger>
-                    <SelectContent className="rounded-xl">{GRID_HOURS.filter(h => h !== "PAUSE").map(h => <SelectItem key={h} value={h}>{h}</SelectItem>)}</SelectContent>
+                    <SelectContent className="rounded-xl font-bold">{GRID_HOURS.filter(h => h !== "PAUSE").map(h => <SelectItem key={h} value={h}>{h}</SelectItem>)}</SelectContent>
                   </Select>
                </div>
             </div>
@@ -371,22 +444,22 @@ export default function EmploisPage() {
             <div className="space-y-2">
               <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Salle</label>
               <Select value={formData.room} onValueChange={(v) => setFormData({...formData, room: v})}>
-                <SelectTrigger className="h-12 rounded-xl border-slate-100 bg-slate-50 font-bold text-xs"><SelectValue placeholder="Choisir une salle..." /></SelectTrigger>
-                <SelectContent className="rounded-xl font-bold">
+                <SelectTrigger className="h-12 rounded-xl border-slate-100 bg-slate-50 font-bold text-xs shadow-sm"><SelectValue placeholder="Choisir une salle..." /></SelectTrigger>
+                <SelectContent className="rounded-xl font-bold uppercase">
                   {["S. 101", "S. 102", "S. 201", "Labo 1", "Labo 2", "Terrain"].map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-3">
-             <Button variant="ghost" onClick={() => setIsModalOpen(false)} className="h-12 rounded-xl px-6 font-bold text-slate-400 text-xs">Annuler</Button>
+          <div className="flex items-center justify-end gap-3 pt-4">
+             <Button variant="ghost" onClick={() => setIsModalOpen(false)} className="h-12 rounded-xl px-6 font-bold text-slate-400 text-xs uppercase tracking-widest">Annuler</Button>
              <Button 
               onClick={handleAddCourse}
               disabled={createSlotMutation.isPending || !formData.affectationId}
-              className="h-12 rounded-xl bg-[#67A68C] hover:bg-[#5a927a] text-white font-black px-8 gap-2 shadow-lg"
+              className="h-12 rounded-xl bg-[#67A68C] hover:bg-[#5a927a] text-white font-black px-8 gap-2 shadow-lg shadow-emerald-900/10 transition-all active:scale-95"
              >
-               {createSlotMutation.isPending ? <Loader2 className="animate-spin" size={18} /> : <Plus size={18} />}
+               {createSlotMutation.isPending ? <Loader2 className="animate-spin" size={18} /> : <CheckCircle2 size={18} />}
                Ajouter le cours
              </Button>
           </div>
@@ -405,8 +478,8 @@ export default function EmploisPage() {
             <div className="space-y-2">
               <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Matière</label>
               <Select value={affData.matiereId} onValueChange={(v) => setAffData({...affData, matiereId: v})}>
-                <SelectTrigger className="h-12 rounded-xl border-slate-100 bg-slate-50 font-bold text-xs"><SelectValue placeholder="Choisir la matière" /></SelectTrigger>
-                <SelectContent className="rounded-xl font-bold">
+                <SelectTrigger className="h-12 rounded-xl border-slate-100 bg-slate-50 font-bold text-xs uppercase"><SelectValue placeholder="Choisir la matière" /></SelectTrigger>
+                <SelectContent className="rounded-xl font-bold uppercase">
                   {allMatieres.map(m => <SelectItem key={m.id} value={m.id.toString()}>{m.nom}</SelectItem>)}
                 </SelectContent>
               </Select>
@@ -415,8 +488,8 @@ export default function EmploisPage() {
             <div className="space-y-2">
               <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Enseignant</label>
               <Select value={affData.enseignantId} onValueChange={(v) => setAffData({...affData, enseignantId: v})}>
-                <SelectTrigger className="h-12 rounded-xl border-slate-100 bg-slate-50 font-bold text-xs"><SelectValue placeholder="Choisir l'enseignant" /></SelectTrigger>
-                <SelectContent className="rounded-xl font-bold">
+                <SelectTrigger className="h-12 rounded-xl border-slate-100 bg-slate-50 font-bold text-xs uppercase"><SelectValue placeholder="Choisir l'enseignant" /></SelectTrigger>
+                <SelectContent className="rounded-xl font-bold uppercase">
                   {allEnseignants.map(e => <SelectItem key={e.id} value={e.id.toString()}>{e.user?.nom} {e.user?.prenom} ({e.specialite})</SelectItem>)}
                 </SelectContent>
               </Select>
@@ -425,7 +498,7 @@ export default function EmploisPage() {
             <div className="space-y-2">
               <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Coefficient</label>
               <Select value={affData.coefficient} onValueChange={(v) => setAffData({...affData, coefficient: v})}>
-                <SelectTrigger className="h-12 rounded-xl border-slate-100 bg-slate-50 font-black text-xs"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="h-12 rounded-xl border-slate-100 bg-slate-50 font-bold text-xs"><SelectValue /></SelectTrigger>
                 <SelectContent className="rounded-xl font-bold">
                   {["1", "2", "3", "4", "5"].map(c => <SelectItem key={c} value={c}>Coeff {c}</SelectItem>)}
                 </SelectContent>
@@ -434,10 +507,16 @@ export default function EmploisPage() {
           </div>
 
           <div className="flex items-center justify-end gap-3">
-             <Button variant="ghost" onClick={() => setIsAffModalOpen(false)} className="h-12 rounded-xl px-6 font-black text-slate-400 text-xs">Annuler</Button>
+             <Button variant="ghost" onClick={() => setIsAffModalOpen(false)} className="h-12 rounded-xl px-6 font-bold text-slate-400 text-xs">Annuler</Button>
              <Button 
-              onClick={() => createAffMutation.mutate({ matiereId: parseInt(affData.matiereId), enseignantId: parseInt(affData.enseignantId), coefficient: parseInt(affData.coefficient), noteMax: 20 })}
-              disabled={createAffMutation.isPending || !affData.enseignantId || !affData.matiereId}
+              onClick={() => createAffMutation.mutate({ 
+                classeId: parseInt(affData.classeId),
+                matiereId: parseInt(affData.matiereId), 
+                enseignantId: parseInt(affData.enseignantId), 
+                coefficient: parseInt(affData.coefficient), 
+                noteMax: 20 
+              })}
+              disabled={createAffMutation.isPending || !affData.enseignantId || !affData.matiereId || !affData.classeId}
               className="h-12 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black px-8 gap-2 shadow-lg"
              >
                {createAffMutation.isPending ? <Loader2 className="animate-spin" size={18} /> : <CheckCircle2 size={18} />}
