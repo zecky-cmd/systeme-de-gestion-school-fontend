@@ -2,7 +2,7 @@ import { supabase } from "@/lib/supabase";
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"];
-const BUCKET_NAME = "profiles"; // Assurez-vous que ce bucket existe et est public
+const BUCKET_NAME = "profiles"; 
 
 export class StorageService {
   /**
