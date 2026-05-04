@@ -14,6 +14,7 @@ export const enseignantSchema = z.object({
   specialite: z.string().min(2, "La spécialité est requise"),
   telephone: z.string().min(8, "Numéro invalide"),
   statut: z.enum(["actif", "inact"]),
+  typeContrat: z.enum(["permanent", "vacataire"]),
 });
 
 export type EnseignantFormValues = z.infer<typeof enseignantSchema>;
@@ -38,6 +39,7 @@ export function useEnseignantForm({ mode, initialData, open, onOpenChange }: Use
       specialite: "",
       telephone: "",
       statut: "actif",
+      typeContrat: "permanent",
     },
   });
 
@@ -51,6 +53,7 @@ export function useEnseignantForm({ mode, initialData, open, onOpenChange }: Use
         specialite: initialData.specialite || "",
         telephone: initialData.telephone || "",
         statut: initialData.statut,
+        typeContrat: initialData.typeContrat || "permanent",
       });
     } else if (open && mode === "add") {
       form.reset({
@@ -61,6 +64,7 @@ export function useEnseignantForm({ mode, initialData, open, onOpenChange }: Use
         specialite: "",
         telephone: "",
         statut: "actif",
+        typeContrat: "permanent",
       });
     }
   }, [open, initialData, mode, form]);

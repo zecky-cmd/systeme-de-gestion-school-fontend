@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useLayoutEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,22 +20,29 @@ interface ActionMenuProps {
 export function ActionMenu({ items }: ActionMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [openUpward, setOpenUpward] = useState(false);
+  const [isMeasured, setIsMeasured] = useState(false);
+  
   const menuRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const floatingRef = useRef<HTMLDivElement>(null); // 1. Ref sur le menu réel
+  const floatingRef = useRef<HTMLDivElement>(null);
 
-  // 2. Calcul basé sur la vraie hauteur du menu
-  const calculateDirection = useCallback(() => {
-    if (!triggerRef.current || !floatingRef.current) return;
+  // Calcul du positionnement intelligent (haut/bas)
+  useLayoutEffect(() => {
+    if (isOpen && floatingRef.current && triggerRef.current) {
+      const triggerRect = triggerRef.current.getBoundingClientRect();
+      const menuHeight = floatingRef.current.offsetHeight;
+      const spaceBelow = window.innerHeight - triggerRect.bottom;
+      const spaceAbove = triggerRect.top;
 
-    const triggerRect = triggerRef.current.getBoundingClientRect();
-    const menuHeight = floatingRef.current.offsetHeight; // hauteur réelle
-    const spaceBelow = window.innerHeight - triggerRect.bottom;
-    const spaceAbove = triggerRect.top;
+      setOpenUpward(spaceBelow < menuHeight && spaceAbove > spaceBelow);
+      setIsMeasured(true);
+    } else if (!isOpen) {
+      setIsMeasured(false);
+      setOpenUpward(false);
+    }
+  }, [isOpen]);
 
-    setOpenUpward(spaceBelow < menuHeight && spaceAbove > spaceBelow);
-  }, []);
-
+  // Fermeture au clic extérieur
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -48,7 +55,7 @@ export function ActionMenu({ items }: ActionMenuProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen]);
 
-  // 3. Fermeture avec Escape
+  // Fermeture avec la touche Escape
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape") setIsOpen(false);
@@ -67,7 +74,7 @@ export function ActionMenu({ items }: ActionMenuProps) {
         ref={triggerRef}
         variant="ghost"
         size="icon"
-        aria-haspopup="true"           // 4. Accessibilité
+        aria-haspopup="true"
         aria-expanded={isOpen}
         className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"
         onClick={handleToggle}
@@ -77,12 +84,10 @@ export function ActionMenu({ items }: ActionMenuProps) {
 
       <AnimatePresence>
         {isOpen && (
-          //5. Menu rendu invisible d'abord pour mesurer, puis repositionné
           <motion.div
             ref={floatingRef}
-            onAnimationStart={calculateDirection} // mesure avant l'animation
-            initial={{ opacity: 0, y: openUpward ? -4 : 4, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
+            initial={isMeasured ? { opacity: 0, y: openUpward ? -4 : 4, scale: 0.95 } : { opacity: 0, scale: 0.95 }}
+            animate={isMeasured ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, scale: 0.95 }}
             exit={{ opacity: 0, y: openUpward ? -4 : 4, scale: 0.95 }}
             transition={{ duration: 0.15 }}
             className={cn(
