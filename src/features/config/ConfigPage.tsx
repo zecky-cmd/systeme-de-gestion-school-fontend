@@ -23,6 +23,7 @@ export function ConfigPage() {
     formData: schoolData, 
     handleInputChange: handleSchoolChange, 
     handleSave: saveSchool,
+    handleLogoUpload,
     isSaving: isSavingSchool 
   } = useSchoolConfig();
 
@@ -30,13 +31,16 @@ export function ConfigPage() {
     years,
     periods,
     series,
-    toggleSeries
+    updateSeries,
+    isSavingSeries
   } = useAcademicYear();
 
   const {
     subjects,
     noteTypes,
-    updateCoefficient
+    updateCoefficients,
+    updateNoteTypes,
+    isSaving: isSavingPedagogy
   } = usePedagogy();
 
   const {
@@ -50,19 +54,11 @@ export function ConfigPage() {
     togglePermission
   } = useUserManagement();
 
-  // Fonction de sauvegarde globale selon l'onglet
-  const handleGlobalSave = () => {
-    if (activeTab === "etablissement") saveSchool();
-    // Les autres onglets gèrent souvent leurs saves via des mutations directes (ex: toggleSeries)
-  };
-
   return (
     <div className="flex-1 flex flex-col bg-[oklch(0.98_0.002_240)] min-h-screen">
       <ConfigTopBar 
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 
-        onSaveAll={handleGlobalSave}
-        isSaving={isSavingSchool}
       />
 
       <main className="flex-1 p-6 overflow-auto">
@@ -76,7 +72,10 @@ export function ConfigPage() {
             >
               <EtablissementView 
                 data={schoolData} 
-                onChange={handleSchoolChange} 
+                onChange={handleSchoolChange}
+                onSave={saveSchool}
+                onLogoChange={handleLogoUpload}
+                isSaving={isSavingSchool}
               />
             </motion.div>
           )}
@@ -91,7 +90,8 @@ export function ConfigPage() {
                 years={years}
                 periods={periods}
                 series={series}
-                onToggleSeries={toggleSeries}
+                onUpdateSeries={updateSeries}
+                isSavingSeries={isSavingSeries}
               />
             </motion.div>
           )}
@@ -105,7 +105,9 @@ export function ConfigPage() {
               <PedagogyView 
                 subjects={subjects}
                 noteTypes={noteTypes}
-                onUpdateCoef={updateCoefficient}
+                onUpdateCoefficients={updateCoefficients}
+                onUpdateNoteTypes={updateNoteTypes}
+                isSaving={isSavingPedagogy}
               />
             </motion.div>
           )}

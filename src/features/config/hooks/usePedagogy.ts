@@ -15,14 +15,27 @@ export function usePedagogy() {
     queryFn: PedagogyService.getNoteTypes
   });
 
-  const updateCoefMutation = useMutation({
-    mutationFn: ({ id, level, value }: { id: number; level: string; value: number }) => 
-      PedagogyService.updateCoefficient(id, level, value),
+  const updateCoefficientsMutation = useMutation({
+    mutationFn: (allSubjects: SubjectCoefficient[]) => 
+      PedagogyService.updateAllCoefficients(allSubjects),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["pedagogy-subjects"] });
+      toast.success("Coefficients mis à jour");
     },
     onError: () => {
-      toast.error("Erreur lors de la mise à jour du coefficient");
+      toast.error("Erreur lors de la mise à jour des coefficients");
+    }
+  });
+
+  const updateNoteTypesMutation = useMutation({
+    mutationFn: (allNoteTypes: NoteType[]) => 
+      PedagogyService.updateAllNoteTypes(allNoteTypes),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pedagogy-note-types"] });
+      toast.success("Poids des notes mis à jour");
+    },
+    onError: () => {
+      toast.error("Erreur lors de la mise à jour des poids");
     }
   });
 
@@ -30,7 +43,8 @@ export function usePedagogy() {
     subjects,
     noteTypes,
     isLoading: isLoadingSubjects || isLoadingNotes,
-    updateCoefficient: (id: number, level: string, value: number) => 
-      updateCoefMutation.mutate({ id, level, value })
+    updateCoefficients: (allSubjects: SubjectCoefficient[]) => updateCoefficientsMutation.mutate(allSubjects),
+    updateNoteTypes: (allNoteTypes: NoteType[]) => updateNoteTypesMutation.mutate(allNoteTypes),
+    isSaving: updateCoefficientsMutation.isPending || updateNoteTypesMutation.isPending
   };
 }

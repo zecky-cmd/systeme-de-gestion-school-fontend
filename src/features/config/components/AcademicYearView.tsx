@@ -1,5 +1,5 @@
-import React from "react";
-import { Plus, Edit2, Calendar, Clock } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Plus, Edit2, Calendar, Clock, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
@@ -24,17 +24,32 @@ interface AcademicYearViewProps {
   years: AcademicYear[];
   periods: EvaluationPeriod[];
   series: SchoolSeries[];
-  onToggleSeries: (id: string, isActive: boolean) => void;
+  onUpdateSeries: (series: SchoolSeries[]) => void;
+  isSavingSeries: boolean;
 }
 
-export function AcademicYearView({ years, periods, series, onToggleSeries }: AcademicYearViewProps) {
+export function AcademicYearView({ years, periods, series: initialSeries, onUpdateSeries, isSavingSeries }: AcademicYearViewProps) {
+  const [localSeries, setLocalSeries] = useState<SchoolSeries[]>(initialSeries);
+
+  useEffect(() => {
+    setLocalSeries(initialSeries);
+  }, [initialSeries]);
+
+  const handleToggleSeries = (id: string, isActive: boolean) => {
+    setLocalSeries(prev => prev.map(s => s.id === id ? { ...s, isActive } : s));
+  };
+
+  const handleSaveSeries = () => {
+    onUpdateSeries(localSeries);
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Colonne Gauche: Années scolaires */}
       <Card className="border-[oklch(0.91_0.005_240)] shadow-sm">
         <CardHeader className="pb-3 flex flex-row items-center justify-between space-y-0">
           <div className="space-y-1">
-            <CardTitle className="text-sm font-semibold">Années scolaires</CardTitle>
+            <CardTitle className="text-sm font-semibold text-slate-900 font-heading">Années scolaires</CardTitle>
             <CardDescription className="text-xs">Gestion des années académiques</CardDescription>
           </div>
           <Button variant="outline" size="sm" className="h-7 gap-1.5 text-[10px] font-semibold border-slate-200">
@@ -66,7 +81,7 @@ export function AcademicYearView({ years, periods, series, onToggleSeries }: Aca
                       <Badge className="bg-primary/10 text-primary text-[9px] font-bold px-1.5 h-4 border-none">Active</Badge>
                     )}
                   </div>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-[11px] text-muted-foreground font-mono">
                     {year.startDate} - {year.endDate}
                   </p>
                 </div>
@@ -84,18 +99,23 @@ export function AcademicYearView({ years, periods, series, onToggleSeries }: Aca
         <Card className="border-[oklch(0.91_0.005_240)] shadow-sm">
           <CardHeader className="pb-3 flex flex-row items-center justify-between space-y-0">
             <div className="space-y-1">
-              <CardTitle className="text-sm font-semibold">Périodes d'évaluation</CardTitle>
+              <CardTitle className="text-sm font-semibold text-slate-900 font-heading">Périodes d'évaluation</CardTitle>
               <CardDescription className="text-xs">Trimestres / Semestres</CardDescription>
             </div>
-            <Select defaultValue="Trimestrielle">
-              <SelectTrigger className="w-[120px] h-8 rounded-md border-slate-200 text-xs font-medium">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="rounded-md">
-                <SelectItem value="Trimestrielle" className="text-xs">Trimestrielle</SelectItem>
-                <SelectItem value="Semestrielle" className="text-xs">Semestrielle</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex items-center gap-2">
+              <Select defaultValue="Trimestrielle">
+                <SelectTrigger className="w-[120px] h-8 rounded-md border-slate-200 text-xs font-medium">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="rounded-md">
+                  <SelectItem value="Trimestrielle" className="text-xs font-medium">Trimestrielle</SelectItem>
+                  <SelectItem value="Semestrielle" className="text-xs font-medium">Semestrielle</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button size="icon" className="h-8 w-8 bg-primary hover:bg-primary/90 text-white rounded-md shadow-sm transition-all active:scale-95">
+                <Save size={14} />
+              </Button>
+            </div>
           </CardHeader>
           <CardContent className="space-y-2">
             {periods.map((period) => (
@@ -110,7 +130,7 @@ export function AcademicYearView({ years, periods, series, onToggleSeries }: Aca
                   </div>
                   <div>
                     <span className="text-xs font-semibold text-slate-900">{period.label}</span>
-                    <p className="text-[11px] text-muted-foreground">{period.startDate} - {period.endDate}</p>
+                    <p className="text-[11px] text-muted-foreground font-mono">{period.startDate} - {period.endDate}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -132,13 +152,24 @@ export function AcademicYearView({ years, periods, series, onToggleSeries }: Aca
 
         {/* Séries du lycée */}
         <Card className="border-[oklch(0.91_0.005_240)] shadow-sm">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold">Séries du lycée</CardTitle>
-            <CardDescription className="text-xs">Activez les séries proposées</CardDescription>
+          <CardHeader className="pb-3 flex flex-row items-center justify-between space-y-0">
+            <div className="space-y-1">
+              <CardTitle className="text-sm font-semibold text-slate-900 font-heading">Séries du lycée</CardTitle>
+              <CardDescription className="text-xs">Activez les séries proposées</CardDescription>
+            </div>
+            <Button 
+              onClick={handleSaveSeries}
+              disabled={isSavingSeries}
+              size="sm" 
+              className="h-8 rounded-md bg-primary hover:bg-primary/90 text-white font-semibold px-4 gap-2 text-xs shadow-sm transition-all active:scale-95"
+            >
+              <Save size={14} />
+              {isSavingSeries ? "..." : "Enregistrer"}
+            </Button>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-2">
-              {series.map((s) => (
+              {localSeries.map((s) => (
                 <div key={s.id} className="p-2.5 rounded-lg border border-slate-100 flex items-center justify-between bg-slate-50/50">
                   <div className="flex items-center gap-2">
                     <div className={cn(
@@ -151,7 +182,7 @@ export function AcademicYearView({ years, periods, series, onToggleSeries }: Aca
                   </div>
                   <Switch 
                     checked={s.isActive} 
-                    onCheckedChange={(checked) => onToggleSeries(s.id, checked)}
+                    onCheckedChange={(checked) => handleToggleSeries(s.id, checked)}
                     className="scale-75"
                   />
                 </div>

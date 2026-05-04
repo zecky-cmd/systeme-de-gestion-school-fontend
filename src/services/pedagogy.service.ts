@@ -26,7 +26,11 @@ export const PedagogyService = {
     return response.data;
   },
 
-  updateCoefficient: async (subjectId: number, level: string, value: number): Promise<void> => {
-    await api.patch(`/pedagogy/subjects/${subjectId}/coefficients`, { level, value });
+  updateAllCoefficients: async (subjects: SubjectCoefficient[]): Promise<void> => {
+    await api.put("/pedagogy/coefficients", subjects);
+  },
+
+  updateAllNoteTypes: async (noteTypes: NoteType[]): Promise<void> => {
+    await api.put("/pedagogy/note-types", noteTypes);
   }
 };

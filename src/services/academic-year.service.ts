@@ -41,5 +41,9 @@ export const AcademicYearService = {
 
   toggleSeries: async (seriesId: string, isActive: boolean): Promise<void> => {
     await api.patch(`/school-series/${seriesId}`, { isActive });
+  },
+
+  updateAllSeries: async (series: SchoolSeries[]): Promise<void> => {
+    await api.put("/school-series", series);
   }
 };

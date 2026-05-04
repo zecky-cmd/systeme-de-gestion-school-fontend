@@ -29,6 +29,18 @@ export function useSchoolConfig() {
     }
   }, [config]);
 
+  const uploadLogoMutation = useMutation({
+    mutationFn: SchoolService.uploadLogo,
+    onSuccess: (url) => {
+      setFormData(prev => ({ ...prev, logoUrl: url }));
+      queryClient.invalidateQueries({ queryKey: ["school-config"] });
+      toast.success("Logo mis à jour");
+    },
+    onError: () => {
+      toast.error("Erreur lors de l'upload du logo");
+    }
+  });
+
   const updateMutation = useMutation({
     mutationFn: SchoolService.updateConfig,
     onSuccess: () => {
@@ -48,11 +60,16 @@ export function useSchoolConfig() {
     updateMutation.mutate(formData);
   };
 
+  const handleLogoUpload = (file: File) => {
+    uploadLogoMutation.mutate(file);
+  };
+
   return {
     formData,
     isLoading,
     handleInputChange,
     handleSave,
-    isSaving: updateMutation.isPending
+    handleLogoUpload,
+    isSaving: updateMutation.isPending || uploadLogoMutation.isPending
   };
 }

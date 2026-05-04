@@ -23,14 +23,15 @@ export function useAcademicYear() {
     queryFn: AcademicYearService.getSeries
   });
 
-  const toggleSeriesMutation = useMutation({
-    mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) => 
-      AcademicYearService.toggleSeries(id, isActive),
+  const updateSeriesMutation = useMutation({
+    mutationFn: (allSeries: SchoolSeries[]) => 
+      AcademicYearService.updateAllSeries(allSeries),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["school-series"] });
+      toast.success("Séries mises à jour");
     },
     onError: () => {
-      toast.error("Erreur lors de la modification de la série");
+      toast.error("Erreur lors de la mise à jour des séries");
     }
   });
 
@@ -40,6 +41,7 @@ export function useAcademicYear() {
     periods,
     series,
     isLoading: isLoadingYears || isLoadingPeriods || isLoadingSeries,
-    toggleSeries: (id: string, isActive: boolean) => toggleSeriesMutation.mutate({ id, isActive })
+    updateSeries: (allSeries: SchoolSeries[]) => updateSeriesMutation.mutate(allSeries),
+    isSavingSeries: updateSeriesMutation.isPending
   };
 }
