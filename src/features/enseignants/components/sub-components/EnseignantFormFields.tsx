@@ -83,15 +83,15 @@ export function EnseignantFormFields({ form, isView }: EnseignantFormFieldsProps
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="specialite" className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Spécialité</Label>
+            <Label htmlFor="specialites" className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Spécialités</Label>
             <Input 
-              id="specialite" 
+              id="specialites" 
               disabled={isView}
-              placeholder="Ex: Mathématiques" 
+              placeholder="Ex: Mathématiques, Physique, SVT" 
               className="h-11 font-black text-slate-900 dark:text-white border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900 focus:ring-emerald-500/20 placeholder:font-normal placeholder:text-slate-400/40" 
-              {...register("specialite")} 
+              {...register("specialites")} 
             />
-            {errors.specialite && <p className="text-[10px] text-rose-500 font-bold">{errors.specialite.message}</p>}
+            {errors.specialites && <p className="text-[10px] text-rose-500 font-bold">{errors.specialites.message}</p>}
           </div>
         </div>
 

@@ -7,7 +7,7 @@ export interface Enseignant {
   id: number;
   userId: number;
   matricule?: string;
-  specialite?: string;
+  specialites?: string[];
   telephone?: string;
   statut: "actif" | "inact";
   typeContrat?: TypeContrat;
@@ -46,7 +46,7 @@ export interface CreateEnseignantCombinedDto {
 
   // Infos Enseignant
   matricule: string;
-  specialite: string;
+  specialites: string[];
   telephone: string;
   statut: "actif" | "inact";
   typeContrat: TypeContrat;
@@ -96,7 +96,7 @@ export const EnseignantService = {
     const enseignantResponse = await api.post("/enseignant", {
       userId: newUser.id,
       matricule: data.matricule,
-      specialite: data.specialite,
+      specialites: data.specialites,
       telephone: data.telephone,
       statut: data.statut,
       typeContrat: data.typeContrat
@@ -121,7 +121,7 @@ export const EnseignantService = {
     // Mettre à jour les infos Enseignant
     const response = await api.patch(`/enseignant/${id}`, {
       matricule: data.matricule,
-      specialite: data.specialite,
+      specialites: data.specialites,
       telephone: data.telephone,
       statut: data.statut,
       typeContrat: data.typeContrat
