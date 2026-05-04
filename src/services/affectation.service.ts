@@ -38,5 +38,12 @@ export const AffectationService = {
   create: async (data: Partial<AffectationMatiere>): Promise<AffectationMatiere> => {
     const response = await api.post("/matiere-niveau", data);
     return response.data;
+  },
+
+  /**
+   * Supprimer une affectation
+   */
+  delete: async (id: number): Promise<void> => {
+    await api.delete(`/matiere-niveau/${id}`);
   }
 };
