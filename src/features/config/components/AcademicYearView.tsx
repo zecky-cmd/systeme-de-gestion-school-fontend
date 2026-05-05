@@ -43,6 +43,24 @@ export function AcademicYearView({ years, periods, series: initialSeries, onUpda
     onUpdateSeries(localSeries);
   };
 
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case "ouv": return "Ouverte";
+      case "clos": return "Clôturée";
+      case "arch": return "Archivée";
+      default: return status;
+    }
+  };
+
+  const getStatusBadgeClass = (status: string) => {
+    switch (status) {
+      case "ouv": return "border-green-200 bg-green-50 text-green-700";
+      case "clos": return "border-border bg-secondary text-muted-foreground";
+      case "arch": return "border-amber-200 bg-amber-50 text-amber-700";
+      default: return "border-slate-200 bg-slate-50 text-slate-700";
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Colonne Gauche: Années scolaires */}
@@ -76,13 +94,13 @@ export function AcademicYearView({ years, periods, series: initialSeries, onUpda
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-slate-900">{year.label}</span>
+                    <span className="text-sm font-semibold text-slate-900">{year.libelle}</span>
                     {year.isActive && (
                       <Badge className="bg-primary/10 text-primary text-[9px] font-bold px-1.5 h-4 border-none">Active</Badge>
                     )}
                   </div>
                   <p className="text-[11px] text-muted-foreground font-mono">
-                    {year.startDate} - {year.endDate}
+                    {new Date(year.dateDebut).toLocaleDateString()} - {new Date(year.dateFin).toLocaleDateString()}
                   </p>
                 </div>
               </div>
@@ -103,13 +121,13 @@ export function AcademicYearView({ years, periods, series: initialSeries, onUpda
               <CardDescription className="text-xs">Trimestres / Semestres</CardDescription>
             </div>
             <div className="flex items-center gap-2">
-              <Select defaultValue="Trimestrielle">
+              <Select defaultValue="trim">
                 <SelectTrigger className="w-[120px] h-8 rounded-md border-slate-200 text-xs font-medium">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="rounded-md">
-                  <SelectItem value="Trimestrielle" className="text-xs font-medium">Trimestrielle</SelectItem>
-                  <SelectItem value="Semestrielle" className="text-xs font-medium">Semestrielle</SelectItem>
+                  <SelectItem value="trim" className="text-xs font-medium">Trimestrielle</SelectItem>
+                  <SelectItem value="sem" className="text-xs font-medium">Semestrielle</SelectItem>
                 </SelectContent>
               </Select>
               <Button size="icon" className="h-8 w-8 bg-primary hover:bg-primary/90 text-white rounded-md shadow-sm transition-all active:scale-95">
@@ -122,24 +140,23 @@ export function AcademicYearView({ years, periods, series: initialSeries, onUpda
               <div key={period.id} className="p-2.5 rounded-lg border border-slate-100 flex items-center justify-between group bg-slate-50/50">
                 <div className="flex items-center gap-3">
                   <div className={cn(
-                    "h-8 w-8 rounded-md flex items-center justify-center shadow-sm",
-                    period.status === "Ouverte" ? "bg-green-100 text-green-600" :
-                    period.status === "Cloturee" ? "bg-secondary text-muted-foreground" : "bg-amber-100 text-amber-600"
+                    "h-8 w-8 rounded-md flex items-center justify-center shadow-sm bg-slate-100 text-slate-400"
                   )}>
                     <Clock size={14} />
                   </div>
                   <div>
-                    <span className="text-xs font-semibold text-slate-900">{period.label}</span>
-                    <p className="text-[11px] text-muted-foreground font-mono">{period.startDate} - {period.endDate}</p>
+                    <span className="text-xs font-semibold text-slate-900">{period.libelle}</span>
+                    <p className="text-[11px] text-muted-foreground font-mono">
+                      {new Date(period.dateDebut).toLocaleDateString()} - {new Date(period.dateFin).toLocaleDateString()}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <Badge variant="outline" className={cn(
                     "text-[9px] font-bold border px-2 h-4",
-                    period.status === "Ouverte" ? "border-green-200 bg-green-50 text-green-700" :
-                    period.status === "Cloturee" ? "border-border bg-secondary text-muted-foreground" : "border-amber-200 bg-amber-50 text-amber-700"
+                    getStatusBadgeClass(period.statut)
                   )}>
-                    {period.status}
+                    {getStatusLabel(period.statut)}
                   </Badge>
                   <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-400">
                     <Edit2 size={12} />

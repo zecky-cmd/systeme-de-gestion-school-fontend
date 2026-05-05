@@ -2,19 +2,19 @@ import api from "@/lib/axios";
 
 export interface AcademicYear {
   id: number;
-  label: string; // ex: "2025-2026"
-  startDate: string;
-  endDate: string;
+  libelle: string; // ex: "2025-2026"
+  dateDebut: string;
+  dateFin: string;
   isActive: boolean;
-  typePériode: "Trimestrielle" | "Semestrielle";
+  modeEval: "trim" | "sem";
 }
 
 export interface EvaluationPeriod {
   id: number;
-  label: string;
-  startDate: string;
-  endDate: string;
-  status: "Cloturee" | "Ouverte" | "A venir";
+  libelle: string;
+  dateDebut: string;
+  dateFin: string;
+  statut: "ouv" | "clos" | "arch";
 }
 
 export interface SchoolSeries {
@@ -25,12 +25,12 @@ export interface SchoolSeries {
 
 export const AcademicYearService = {
   getYears: async (): Promise<AcademicYear[]> => {
-    const response = await api.get("/academic-years");
+    const response = await api.get("/annee-scolaire");
     return response.data;
   },
 
   getPeriods: async (yearId: number): Promise<EvaluationPeriod[]> => {
-    const response = await api.get(`/academic-years/${yearId}/periods`);
+    const response = await api.get("/periode", { params: { anneeId: yearId } });
     return response.data;
   },
 

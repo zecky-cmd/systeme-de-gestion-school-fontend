@@ -6,15 +6,11 @@ import { toast } from "sonner";
 export function useSchoolConfig() {
   const queryClient = useQueryClient();
   const [formData, setFormData] = useState<Partial<SchoolConfig>>({
-    nomComplet: "",
-    sigle: "",
-    agrementMena: "",
-    typeEtablissement: "Prive laique",
+    nom: "",
     adresse: "",
-    ville: "",
     telephone: "",
     email: "",
-    directeur: "",
+    devise: "F",
   });
 
   const { data: config, isLoading } = useQuery({
