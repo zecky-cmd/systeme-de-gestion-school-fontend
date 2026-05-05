@@ -73,6 +73,7 @@ export function ConfigPage() {
               <AcademicYearView 
                 years={years} 
                 periods={periods}
+                activeYearId={schoolData.anneeActiveId}
                 onSetActiveYear={setActiveYear}
                 onCreateYear={createYear}
                 onUpdateYear={updateYear}
