@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { AcademicYearService } from "@/services/academic-year.service";
+import { AcademicYearService, AcademicYear, EvaluationPeriod } from "@/services/academic-year.service";
+import { SchoolService } from "@/services/school.service";
 import { toast } from "sonner";
 
 export function useAcademicYear() {
@@ -18,20 +19,53 @@ export function useAcademicYear() {
     enabled: !!activeYear
   });
 
-  const { data: series = [], isLoading: isLoadingSeries } = useQuery({
-    queryKey: ["school-series"],
-    queryFn: AcademicYearService.getSeries
+  const createYearMutation = useMutation({
+    mutationFn: (data: Partial<AcademicYear>) => AcademicYearService.createYear(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["academic-years"] });
+      toast.success("Année scolaire créée");
+    },
+    onError: () => toast.error("Erreur lors de la création de l'année")
   });
 
-  const updateSeriesMutation = useMutation({
-    mutationFn: (allSeries: SchoolSeries[]) => 
-      AcademicYearService.updateAllSeries(allSeries),
+  const updateYearMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number, data: Partial<AcademicYear> }) => 
+      AcademicYearService.updateYear(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["school-series"] });
-      toast.success("Séries mises à jour");
+      queryClient.invalidateQueries({ queryKey: ["academic-years"] });
+      toast.success("Année scolaire mise à jour");
+    },
+    onError: () => toast.error("Erreur lors de la mise à jour de l'année")
+  });
+
+  const createPeriodMutation = useMutation({
+    mutationFn: (data: Partial<EvaluationPeriod>) => AcademicYearService.createPeriod(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["evaluation-periods"] });
+      toast.success("Période créée");
+    },
+    onError: () => toast.error("Erreur lors de la création de la période")
+  });
+
+  const updatePeriodMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number, data: Partial<EvaluationPeriod> }) => 
+      AcademicYearService.updatePeriod(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["evaluation-periods"] });
+      toast.success("Période mise à jour");
+    },
+    onError: () => toast.error("Erreur lors de la mise à jour de la période")
+  });
+
+  const setYearActiveMutation = useMutation({
+    mutationFn: (yearId: number) => SchoolService.setActiveYear(yearId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["academic-years"] });
+      queryClient.invalidateQueries({ queryKey: ["school-config"] });
+      toast.success("Année active mise à jour");
     },
     onError: () => {
-      toast.error("Erreur lors de la mise à jour des séries");
+      toast.error("Erreur lors du changement d'année active");
     }
   });
 
@@ -39,9 +73,16 @@ export function useAcademicYear() {
     years,
     activeYear,
     periods,
-    series,
-    isLoading: isLoadingYears || isLoadingPeriods || isLoadingSeries,
-    updateSeries: (allSeries: SchoolSeries[]) => updateSeriesMutation.mutate(allSeries),
-    isSavingSeries: updateSeriesMutation.isPending
+    isLoading: isLoadingYears || isLoadingPeriods,
+    setActiveYear: (yearId: number) => setYearActiveMutation.mutate(yearId),
+    createYear: (data: Partial<AcademicYear>) => createYearMutation.mutate(data),
+    updateYear: (id: number, data: Partial<AcademicYear>) => updateYearMutation.mutate({ id, data }),
+    createPeriod: (data: Partial<EvaluationPeriod>) => createPeriodMutation.mutate(data),
+    updatePeriod: (id: number, data: Partial<EvaluationPeriod>) => updatePeriodMutation.mutate({ id, data }),
+    isSettingActive: setYearActiveMutation.isPending,
+    isCreatingYear: createYearMutation.isPending,
+    isUpdatingYear: updateYearMutation.isPending,
+    isCreatingPeriod: createPeriodMutation.isPending,
+    isUpdatingPeriod: updatePeriodMutation.isPending
   };
 }

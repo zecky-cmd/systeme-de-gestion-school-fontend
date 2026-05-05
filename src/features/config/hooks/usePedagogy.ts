@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { PedagogyService } from "@/services/pedagogy.service";
+import { PedagogyService, SubjectCoefficient, NoteType } from "@/services/pedagogy.service";
 import { toast } from "sonner";
 
 export function usePedagogy() {

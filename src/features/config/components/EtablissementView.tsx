@@ -13,7 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SchoolConfig } from "@/services/school.service";
 
 interface EtablissementViewProps {
-  data: SchoolConfig;
+  data: Partial<SchoolConfig>;
   onChange: (field: keyof SchoolConfig, value: string) => void;
   onSave: () => void;
   onLogoChange: (file: File) => void;

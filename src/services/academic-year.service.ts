@@ -29,8 +29,28 @@ export const AcademicYearService = {
     return response.data;
   },
 
+  createYear: async (data: Partial<AcademicYear>): Promise<AcademicYear> => {
+    const response = await api.post("/annee-scolaire", data);
+    return response.data;
+  },
+
+  updateYear: async (id: number, data: Partial<AcademicYear>): Promise<AcademicYear> => {
+    const response = await api.patch(`/annee-scolaire/${id}`, data);
+    return response.data;
+  },
+
   getPeriods: async (yearId: number): Promise<EvaluationPeriod[]> => {
     const response = await api.get("/periode", { params: { anneeId: yearId } });
+    return response.data;
+  },
+
+  createPeriod: async (data: Partial<EvaluationPeriod>): Promise<EvaluationPeriod> => {
+    const response = await api.post("/periode", data);
+    return response.data;
+  },
+
+  updatePeriod: async (id: number, data: Partial<EvaluationPeriod>): Promise<EvaluationPeriod> => {
+    const response = await api.patch(`/periode/${id}`, data);
     return response.data;
   },
 

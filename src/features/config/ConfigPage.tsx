@@ -23,9 +23,12 @@ export function ConfigPage() {
   const {
     years,
     periods,
-    series,
-    updateSeries,
-    isSavingSeries
+    setActiveYear,
+    createYear,
+    updateYear,
+    createPeriod,
+    updatePeriod,
+    isSettingActive
   } = useAcademicYear();
 
   // Force activeTab to only be etablissement or annee if it was something else
@@ -68,11 +71,14 @@ export function ConfigPage() {
               exit={{ opacity: 0, x: 20 }}
             >
               <AcademicYearView 
-                years={years}
+                years={years} 
                 periods={periods}
-                series={series}
-                onUpdateSeries={updateSeries}
-                isSavingSeries={isSavingSeries}
+                onSetActiveYear={setActiveYear}
+                onCreateYear={createYear}
+                onUpdateYear={updateYear}
+                onCreatePeriod={createPeriod}
+                onUpdatePeriod={updatePeriod}
+                isSettingActive={isSettingActive}
               />
             </motion.div>
           )}

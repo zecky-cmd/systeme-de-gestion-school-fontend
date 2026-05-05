@@ -1,4 +1,5 @@
 import api from "@/lib/axios";
+import { StorageService } from "./storage.service";
 
 export interface SchoolConfig {
   id?: number;
@@ -18,16 +19,29 @@ export const SchoolService = {
   },
 
   updateConfig: async (data: Partial<SchoolConfig>): Promise<SchoolConfig> => {
-    const response = await api.post("/etablissement-config", data);
+    // Filtrage strict pour ne pas envoyer de champs non autorisés par le DTO backend
+    const allowedFields: (keyof SchoolConfig)[] = [
+      "nom", "adresse", "telephone", "email", "logoUrl", "devise", "anneeActiveId"
+    ];
+    
+    const payload = Object.keys(data)
+      .filter((key) => allowedFields.includes(key as keyof SchoolConfig))
+      .reduce((obj, key) => {
+        obj[key as keyof SchoolConfig] = data[key as keyof SchoolConfig];
+        return obj;
+      }, {} as any);
+
+    const response = await api.patch("/etablissement-config", payload);
     return response.data;
   },
 
+  setActiveYear: async (yearId: number): Promise<void> => {
+    await api.put(`/etablissement-config/annee-active/${yearId}`);
+  },
+
   uploadLogo: async (file: File): Promise<string> => {
-    const formData = new FormData();
-    formData.append("file", file);
-    const response = await api.post("/etablissement-config/logo", formData, {
-      headers: { "Content-Type": "multipart/form-data" }
-    });
-    return response.data.url;
+    // Utiliser Supabase via StorageService au lieu de l'API backend
+    const publicUrl = await StorageService.uploadProfilePhoto(file);
+    return publicUrl;
   }
 };
