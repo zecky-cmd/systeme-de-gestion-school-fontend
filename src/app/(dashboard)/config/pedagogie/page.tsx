@@ -8,9 +8,15 @@ import { BookOpen } from "lucide-react";
 export default function PedagogyPage() {
   const {
     subjects,
+    levels,
     noteTypes,
     updateCoefficients,
     updateNoteTypes,
+    createSubject,
+    updateSubject,
+    deleteSubject,
+    createLevel,
+    deleteLevel,
     isSaving
   } = usePedagogy();
 
@@ -32,9 +38,15 @@ export default function PedagogyPage() {
       <main className="flex-1 p-6 overflow-auto">
         <PedagogyView 
           subjects={subjects}
+          levels={levels}
           noteTypes={noteTypes}
           onUpdateCoefficients={updateCoefficients}
           onUpdateNoteTypes={updateNoteTypes}
+          onCreateSubject={createSubject}
+          onUpdateSubject={updateSubject}
+          onDeleteSubject={deleteSubject}
+          onCreateLevel={createLevel}
+          onDeleteLevel={deleteLevel}
           isSaving={isSaving}
         />
       </main>

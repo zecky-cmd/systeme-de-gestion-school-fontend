@@ -5,9 +5,11 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useConfigPage } from "./hooks/useConfigPage";
 import { useSchoolConfig } from "./hooks/useSchoolConfig";
 import { useAcademicYear } from "./hooks/useAcademicYear";
+import { usePedagogy } from "./hooks/usePedagogy";
 import { ConfigTopBar } from "./components/ConfigTopBar";
 import { EtablissementView } from "./components/EtablissementView";
 import { AcademicYearView } from "./components/AcademicYearView";
+import { PedagogyView } from "./components/PedagogyView";
 
 export function ConfigPage() {
   const { activeTab, setActiveTab } = useConfigPage();
@@ -30,10 +32,26 @@ export function ConfigPage() {
     updatePeriod,
     isSettingActive
   } = useAcademicYear();
+  
+  const {
+    subjects,
+    levels,
+    noteTypes,
+    updateCoefficients,
+    updateNoteTypes,
+    createSubject,
+    updateSubject,
+    deleteSubject,
+    createLevel,
+    deleteLevel,
+    isLoading: isLoadingPedagogy,
+    isSaving: isSavingPedagogy
+  } = usePedagogy();
 
-  // Force activeTab to only be etablissement or annee if it was something else
+  // Force activeTab to a valid one if it's currently invalid
   React.useEffect(() => {
-    if (activeTab !== "etablissement" && activeTab !== "annee") {
+    const validTabs = ["etablissement", "annee", "pedagogie", "frais", "utilisateurs", "securite"];
+    if (!validTabs.includes(activeTab)) {
       setActiveTab("etablissement");
     }
   }, [activeTab, setActiveTab]);
@@ -82,6 +100,28 @@ export function ConfigPage() {
                 isSettingActive={isSettingActive}
               />
             </motion.div>
+          )}
+          {activeTab === "pedagogie" && (
+            <motion.div 
+              key="pedagogie" 
+              initial={{ opacity: 0, x: -20 }} 
+              animate={{ opacity: 1, x: 0 }} 
+              exit={{ opacity: 0, x: 20 }}
+            >
+              <PedagogyView 
+                subjects={subjects}
+                levels={levels}
+                noteTypes={noteTypes}
+                onUpdateCoefficients={updateCoefficients}
+                onUpdateNoteTypes={updateNoteTypes}
+                onCreateSubject={createSubject}
+                onUpdateSubject={updateSubject}
+                onDeleteSubject={deleteSubject}
+                onCreateLevel={createLevel}
+                onDeleteLevel={deleteLevel}
+                isSaving={isSavingPedagogy}
+              />
+        </motion.div>
           )}
         </AnimatePresence>
       </main>

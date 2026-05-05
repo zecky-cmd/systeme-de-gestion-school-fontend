@@ -95,7 +95,7 @@ export function EtablissementView({ data, onChange, onSave, onLogoChange, isSavi
                   value={data.nom} 
                   onChange={(e) => onChange("nom", e.target.value)}
                   className="h-11 rounded-xl border-slate-200 focus:border-primary/30 focus:ring-primary/10 transition-all text-sm font-medium bg-slate-50/30" 
-                  placeholder="Ex: Lycée Excellence"
+                  placeholder="Ex: Institut Excellence"
                 />
               </div>
 
