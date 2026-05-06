@@ -41,15 +41,23 @@ export function usePedagogy() {
 
   const createSubjectMutation = useMutation({
     mutationFn: async (data: any) => {
-      const { coefficients, ...matiereData } = data;
-      const newMatiere = await MatiereService.create(matiereData);
+      const { coefficients, groupe, ...rest } = data;
+      // Filtrer pour ne garder que ce que le backend attend (CreateMatiereDto)
+      const matierePayload = {
+        nom: rest.nom,
+        code: rest.code,
+        cycle: rest.cycle || "tous",
+        couleur: "#475569" // Couleur par défaut (Slate 600)
+      };
+      
+      const newMatiere = await MatiereService.create(matierePayload);
       
       if (coefficients && Object.keys(coefficients).length > 0) {
         await PedagogyService.updateAllCoefficients([{
           id: newMatiere.id,
           matiere: newMatiere.nom,
           code: newMatiere.code,
-          groupe: data.groupe || "Général",
+          groupe: groupe || "Général",
           coefficients
         }]);
       }
@@ -57,9 +65,12 @@ export function usePedagogy() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["pedagogy-subjects"] });
-      toast.success("Matière ajoutée");
+      toast.success("Matière ajoutée avec succès");
     },
-    onError: () => toast.error("Erreur lors de la création")
+    onError: (err: any) => {
+      const msg = err.response?.data?.message || "Erreur lors de la création";
+      toast.error(Array.isArray(msg) ? msg[0] : msg);
+    }
   });
 
   const updateSubjectMutation = useMutation({
@@ -104,13 +115,23 @@ export function usePedagogy() {
     mutationFn: async (level: string) => {
       const classes = await ClasseService.getAll();
       const classesToDelete = classes.filter(c => c.niveau === level);
-      await Promise.all(classesToDelete.map(c => ClasseService.delete(c.id)));
+      // Supprimer les classes de référence associées
+      for (const c of classesToDelete) {
+        try {
+          await ClasseService.delete(c.id);
+        } catch (err: any) {
+          if (err.response?.status === 409 || err.response?.status === 400) {
+            throw new Error(`Impossible de supprimer le niveau "${level}" car il contient déjà des données (élèves, notes, etc.)`);
+          }
+          throw err;
+        }
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["pedagogy-subjects"] });
       toast.success("Niveau supprimé");
     },
-    onError: () => toast.error("Erreur lors de la suppression du niveau")
+    onError: (err: any) => toast.error(err.message || "Erreur lors de la suppression du niveau")
   });
 
   const updateCoefficientsMutation = useMutation({
