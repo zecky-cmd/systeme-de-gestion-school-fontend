@@ -1,4 +1,3 @@
-import React from "react";
 import { Plus, Edit2, Trash2, AlertTriangle, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { 
