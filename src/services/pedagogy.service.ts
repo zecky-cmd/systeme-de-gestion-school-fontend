@@ -76,26 +76,53 @@ export const PedagogyService = {
   },
 
   updateAllCoefficients: async (subjects: SubjectCoefficient[]): Promise<void> => {
-    const classesRes = await api.get<Classe[]>("/classe");
+    const [classesRes, matiereNiveauxRes, enseignantsRes] = await Promise.all([
+      api.get<Classe[]>("/classe"),
+      api.get<MatiereNiveau[]>("/matiere-niveau"),
+      api.get<any[]>("/enseignant")
+    ]);
+    
     const classes = classesRes.data;
+    const existingMN = matiereNiveauxRes.data;
+    const teachers = enseignantsRes.data;
+    const defaultTeacherId = teachers.length > 0 ? teachers[0].id : null;
+    
     const updates: Promise<any>[] = [];
 
     for (const s of subjects) {
       for (const [niveau, coef] of Object.entries(s.coefficients)) {
         const levelClasses = classes.filter(c => c.niveau === niveau);
+        
         for (const cls of levelClasses) {
-          updates.push(api.post("/matiere-niveau", {
-            classeId: cls.id,
-            matiereId: s.id,
-            coefficient: coef,
-            noteMax: 20
-          }).catch(() => {
-            // Si doublon, on pourrait faire un PATCH ici via l'ID mn
-          }));
+          const found = existingMN.find(mn => mn.matiereId === s.id && mn.classeId === cls.id);
+          
+          if (found) {
+            // OPTIMISATION: Ne faire le PATCH que si le coefficient a changé
+            if (found.coefficient !== coef) {
+              updates.push(
+                api.patch(`/matiere-niveau/${found.id}`, { coefficient: coef })
+                  .catch(err => console.error(`Failed to patch MN ${found.id}:`, err))
+              );
+            }
+          } else if (defaultTeacherId && coef > 0) {
+            // Création uniquement si coef > 0
+            updates.push(
+              api.post("/matiere-niveau", {
+                classeId: cls.id,
+                matiereId: s.id,
+                coefficient: coef,
+                noteMax: 20,
+                enseignantId: defaultTeacherId
+              }).catch(err => console.error(`Failed to post MN:`, err))
+            );
+          }
         }
       }
     }
-    await Promise.all(updates);
+
+    if (updates.length > 0) {
+      await Promise.all(updates);
+    }
   },
 
   updateAllNoteTypes: async (noteTypes: NoteType[]): Promise<void> => {

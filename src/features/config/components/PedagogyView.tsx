@@ -45,12 +45,14 @@ const CoefStepper = ({ value, onChange }: { value: number, onChange: (val: numbe
     </div>
     <div className="flex flex-col border-l border-slate-100 pl-1">
       <button 
+        type="button"
         onClick={(e) => { e.stopPropagation(); onChange(Math.min(9, value + 1)); }}
         className="p-0.5 hover:text-emerald-600 transition-colors"
       >
         <ChevronUp size={12} />
       </button>
       <button 
+        type="button"
         onClick={(e) => { e.stopPropagation(); onChange(Math.max(0, value - 1)); }}
         className="p-0.5 hover:text-emerald-600 transition-colors"
       >
@@ -114,7 +116,12 @@ export function PedagogyView({
   const handleCoefChange = (subjectId: number, level: string, value: number) => {
     setLocalSubjects(prev => prev?.map(s => {
       if (s.id === subjectId) {
-        return { ...s, coefficients: { ...s.coefficients, [level]: value } };
+        const updated = { ...s, coefficients: { ...s.coefficients, [level]: value } };
+        // Mettre aussi à jour selectedSubject pour que le modal se rafraîchisse
+        if (selectedSubject?.id === subjectId) {
+          setSelectedSubject(updated);
+        }
+        return updated;
       }
       return s;
     }) || []);
