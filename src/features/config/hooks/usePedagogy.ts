@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { PedagogyService, SubjectCoefficient, NoteType } from "@/services/pedagogy.service";
+import { PedagogyService, SubjectCoefficient } from "@/services/pedagogy.service";
 import { MatiereService, Matiere } from "@/services/matiere.service";
 import { ClasseService } from "@/services/classe.service";
 import { SchoolService } from "@/services/school.service";
@@ -16,18 +16,34 @@ export function usePedagogy() {
   const subjects = data?.subjects ?? [];
   const levels = data?.levels ?? [];
 
-  const { data: noteTypes = [], isLoading: isLoadingNotes } = useQuery({
-    queryKey: ["pedagogy-note-types"],
-    queryFn: PedagogyService.getNoteTypes
+  const { data: config } = useQuery({
+    queryKey: ["school-config"],
+    queryFn: SchoolService.getConfig
+  });
+
+  const updateConfigMutation = useMutation({
+    mutationFn: (newConfig: any) => SchoolService.updateConfig(newConfig),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["school-config"] });
+      toast.success("Configuration mise à jour");
+    },
+    onError: () => toast.error("Erreur lors de la mise à jour")
+  });
+
+  const updateLogoMutation = useMutation({
+    mutationFn: (file: File) => SchoolService.uploadLogo(file),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["school-config"] });
+      toast.success("Logo mis à jour");
+    },
+    onError: () => toast.error("Erreur lors du téléchargement")
   });
 
   const createSubjectMutation = useMutation({
     mutationFn: async (data: any) => {
       const { coefficients, ...matiereData } = data;
-      // 1. Créer la matière
       const newMatiere = await MatiereService.create(matiereData);
       
-      // 2. Si des coefficients sont fournis, les enregistrer
       if (coefficients && Object.keys(coefficients).length > 0) {
         await PedagogyService.updateAllCoefficients([{
           id: newMatiere.id,
@@ -41,9 +57,9 @@ export function usePedagogy() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["pedagogy-subjects"] });
-      toast.success("Matiere et coefficients enregistres");
+      toast.success("Matière ajoutée");
     },
-    onError: () => toast.error("Erreur lors de la creation")
+    onError: () => toast.error("Erreur lors de la création")
   });
 
   const updateSubjectMutation = useMutation({
@@ -51,16 +67,16 @@ export function usePedagogy() {
       MatiereService.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["pedagogy-subjects"] });
-      toast.success("Matiere mise a jour");
+      toast.success("Matière mise à jour");
     },
-    onError: () => toast.error("Erreur lors de la mise a jour")
+    onError: () => toast.error("Erreur lors de la mise à jour")
   });
 
   const deleteSubjectMutation = useMutation({
     mutationFn: (id: number) => MatiereService.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["pedagogy-subjects"] });
-      toast.success("Matiere supprimee");
+      toast.success("Matière supprimée");
     },
     onError: () => toast.error("Erreur lors de la suppression")
   });
@@ -88,7 +104,6 @@ export function usePedagogy() {
     mutationFn: async (level: string) => {
       const classes = await ClasseService.getAll();
       const classesToDelete = classes.filter(c => c.niveau === level);
-      
       await Promise.all(classesToDelete.map(c => ClasseService.delete(c.id)));
     },
     onSuccess: () => {
@@ -103,39 +118,31 @@ export function usePedagogy() {
       PedagogyService.updateAllCoefficients(allSubjects),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["pedagogy-subjects"] });
-      toast.success("Coefficients mis a jour");
+      toast.success("Coefficients enregistrés");
     },
-    onError: () => toast.error("Erreur lors de la mise a jour des coefficients")
-  });
-
-  const updateNoteTypesMutation = useMutation({
-    mutationFn: (allNoteTypes: NoteType[]) => 
-      PedagogyService.updateAllNoteTypes(allNoteTypes),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["pedagogy-note-types"] });
-      toast.success("Poids des notes mis a jour");
-    },
-    onError: () => toast.error("Erreur lors de la mise a jour des poids")
+    onError: () => toast.error("Erreur lors de l'enregistrement")
   });
 
   return {
+    config,
     subjects,
     levels,
-    noteTypes,
-    isLoading: isLoadingSubjects || isLoadingNotes,
-    createSubject: (data: Partial<Matiere>) => createSubjectMutation.mutate(data),
+    isLoading: isLoadingSubjects,
+    updateConfig: (newConfig: any) => updateConfigMutation.mutate(newConfig),
+    updateLogo: (file: File) => updateLogoMutation.mutate(file),
+    createSubject: (data: any) => createSubjectMutation.mutate(data),
     updateSubject: (id: number, data: Partial<Matiere>) => updateSubjectMutation.mutate({ id, data }),
     deleteSubject: (id: number) => deleteSubjectMutation.mutate(id),
     createLevel: (data: { nom: string, cycle: "col" | "lyc" }) => createLevelMutation.mutate(data),
     deleteLevel: (level: string) => deleteLevelMutation.mutate(level),
     updateCoefficients: (allSubjects: SubjectCoefficient[]) => updateCoefficientsMutation.mutate(allSubjects),
-    updateNoteTypes: (allNoteTypes: NoteType[]) => updateNoteTypesMutation.mutate(allNoteTypes),
-    isSaving: updateCoefficientsMutation.isPending || 
-              updateNoteTypesMutation.isPending || 
+    isSaving: updateConfigMutation.isPending || 
+              updateLogoMutation.isPending || 
               createSubjectMutation.isPending || 
               updateSubjectMutation.isPending || 
               deleteSubjectMutation.isPending ||
               createLevelMutation.isPending ||
-              deleteLevelMutation.isPending
+              deleteLevelMutation.isPending ||
+              updateCoefficientsMutation.isPending
   };
 }

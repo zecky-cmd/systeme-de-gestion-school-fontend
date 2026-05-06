@@ -9,9 +9,7 @@ export default function PedagogyPage() {
   const {
     subjects,
     levels,
-    noteTypes,
     updateCoefficients,
-    updateNoteTypes,
     createSubject,
     updateSubject,
     deleteSubject,
@@ -39,9 +37,7 @@ export default function PedagogyPage() {
         <PedagogyView 
           subjects={subjects}
           levels={levels}
-          noteTypes={noteTypes}
           onUpdateCoefficients={updateCoefficients}
-          onUpdateNoteTypes={updateNoteTypes}
           onCreateSubject={createSubject}
           onUpdateSubject={updateSubject}
           onDeleteSubject={deleteSubject}

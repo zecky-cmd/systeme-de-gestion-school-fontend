@@ -36,9 +36,7 @@ export function ConfigPage() {
   const {
     subjects,
     levels,
-    noteTypes,
     updateCoefficients,
-    updateNoteTypes,
     createSubject,
     updateSubject,
     deleteSubject,
@@ -111,9 +109,7 @@ export function ConfigPage() {
               <PedagogyView 
                 subjects={subjects}
                 levels={levels}
-                noteTypes={noteTypes}
                 onUpdateCoefficients={updateCoefficients}
-                onUpdateNoteTypes={updateNoteTypes}
                 onCreateSubject={createSubject}
                 onUpdateSubject={updateSubject}
                 onDeleteSubject={deleteSubject}
@@ -121,7 +117,7 @@ export function ConfigPage() {
                 onDeleteLevel={deleteLevel}
                 isSaving={isSavingPedagogy}
               />
-        </motion.div>
+            </motion.div>
           )}
         </AnimatePresence>
       </main>

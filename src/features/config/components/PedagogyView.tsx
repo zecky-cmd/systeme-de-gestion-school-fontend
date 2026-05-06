@@ -20,15 +20,13 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { SubjectCoefficient, NoteType } from "@/services/pedagogy.service";
+import { SubjectCoefficient } from "@/services/pedagogy.service";
 import { Matiere } from "@/services/matiere.service";
 
 interface PedagogyViewProps {
   subjects: SubjectCoefficient[];
   levels: string[];
-  noteTypes: NoteType[];
   onUpdateCoefficients: (subjects: SubjectCoefficient[]) => void;
-  onUpdateNoteTypes: (noteTypes: NoteType[]) => void;
   onCreateSubject: (data: any) => void;
   onUpdateSubject: (id: number, data: Partial<Matiere>) => void;
   onDeleteSubject: (id: number) => void;
@@ -38,14 +36,6 @@ interface PedagogyViewProps {
 }
 
 const GROUPS = ["Sciences", "Lettres", "Langues", "Sport", "Arts"];
-
-const NOTE_TYPE_STYLES: Record<string, string> = {
-  "DS": "bg-blue-50/50 border-blue-100 text-blue-700",
-  "Devoir Surveille (DS)": "bg-blue-50/50 border-blue-100 text-blue-700",
-  "Interrogation": "bg-amber-50/50 border-amber-100 text-amber-700",
-  "Composition": "bg-emerald-50/50 border-emerald-100 text-emerald-700",
-  "Examen blanc": "bg-rose-50/50 border-rose-100 text-rose-700",
-};
 
 // Custom Stepper Component for Coefficients
 const CoefStepper = ({ value, onChange }: { value: number, onChange: (val: number) => void }) => (
@@ -73,9 +63,7 @@ const CoefStepper = ({ value, onChange }: { value: number, onChange: (val: numbe
 export function PedagogyView({ 
   subjects: initialSubjects = [], 
   levels = [],
-  noteTypes: initialNoteTypes = [],
   onUpdateCoefficients,
-  onUpdateNoteTypes,
   onCreateSubject,
   onUpdateSubject,
   onDeleteSubject,
@@ -84,14 +72,12 @@ export function PedagogyView({
   isSaving
 }: PedagogyViewProps) {
   const [localSubjects, setLocalSubjects] = useState<SubjectCoefficient[]>(initialSubjects || []);
-  const [localNoteTypes, setLocalNoteTypes] = useState<NoteType[]>(initialNoteTypes || []);
   
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isLevelModalOpen, setIsLevelModalOpen] = useState(false);
   const [isCoefModalOpen, setIsCoefModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState<SubjectCoefficient | null>(null);
-  const [selectedNoteType, setSelectedNoteType] = useState<NoteType | null>(null);
   
   const [formData, setFormData] = useState<{
     nom: string;
@@ -112,18 +98,9 @@ export function PedagogyView({
     cycle: "col" as "col" | "lyc"
   });
 
-  const [noteTypeFormData, setNoteTypeFormData] = useState({
-    label: "",
-    weight: 1,
-    color: "emerald"
-  });
-
-  const [isNoteTypeModalOpen, setIsNoteTypeModalOpen] = useState(false);
-
   useEffect(() => {
     if (initialSubjects) setLocalSubjects(initialSubjects);
-    if (initialNoteTypes) setLocalNoteTypes(initialNoteTypes);
-  }, [initialSubjects, initialNoteTypes]);
+  }, [initialSubjects]);
 
   // Initialiser les coefficients par défaut lors de l'ouverture du modal d'ajout
   useEffect(() => {
@@ -163,28 +140,6 @@ export function PedagogyView({
     setSelectedSubject(null);
   };
 
-  const handleNoteTypeSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (selectedNoteType) {
-      // Edit
-      const updated = localNoteTypes.map(t => t.id === selectedNoteType.id ? { ...t, ...noteTypeFormData } : t);
-      setLocalNoteTypes(updated);
-      onUpdateNoteTypes(updated);
-    } else {
-      // Create
-      const newType: NoteType = {
-        id: Math.random().toString(36).substr(2, 9),
-        ...noteTypeFormData
-      };
-      const updated = [...localNoteTypes, newType];
-      setLocalNoteTypes(updated);
-      onUpdateNoteTypes(updated);
-    }
-    setIsNoteTypeModalOpen(false);
-    setSelectedNoteType(null);
-    setNoteTypeFormData({ label: "", weight: 1, color: "emerald" });
-  };
-
   const handleDeleteConfirm = () => {
     if (selectedSubject) {
       onDeleteSubject(selectedSubject.id);
@@ -198,18 +153,17 @@ export function PedagogyView({
     setIsCoefModalOpen(true);
   };
 
-  // Group levels by cycle for display
-  const collegeLevels = levels?.filter(l => l.toLowerCase().includes('6') || l.toLowerCase().includes('5') || l.toLowerCase().includes('4') || l.toLowerCase().includes('3')) || [];
-  const lyceeLevels = levels?.filter(l => !collegeLevels.includes(l)) || [];
+  const collegeLevels = levels.filter(l => ["6eme", "5eme", "4eme", "3eme"].includes(l) || l.includes("6e") || l.includes("5e") || l.includes("4e") || l.includes("3e"));
+  const lyceeLevels = levels.filter(l => !collegeLevels.includes(l));
 
   return (
-    <div className="flex flex-col gap-8">
-      {/* Niveaux et classes section */}
-      <Card className="border-[oklch(0.91_0.005_240)] shadow-sm overflow-hidden bg-white/50 backdrop-blur-sm">
-        <CardHeader className="pb-4">
+    <div className="space-y-6">
+      {/* Gestion des Niveaux */}
+      <Card className="border-[oklch(0.91_0.005_240)] shadow-sm">
+        <CardHeader className="pb-3 border-b border-slate-100">
           <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-lg font-bold text-slate-900">Niveaux et classes</CardTitle>
+            <div className="space-y-1">
+              <CardTitle className="text-xl font-bold text-slate-900 font-heading">Niveaux et classes</CardTitle>
               <CardDescription className="text-sm">Gérez les niveaux qui apparaissent dans le tableau des coefficients</CardDescription>
             </div>
             <Button 
@@ -221,7 +175,7 @@ export function PedagogyView({
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="space-y-6 pb-6">
+        <CardContent className="space-y-6 pt-6">
           <div className="space-y-3">
             <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400">1er Cycle</h4>
             <div className="flex flex-wrap gap-2">
@@ -259,55 +213,64 @@ export function PedagogyView({
           </div>
         </CardContent>
       </Card>
-      <Card className="border-[oklch(0.91_0.005_240)] shadow-sm overflow-hidden">
-        <CardHeader className="pb-6 flex flex-row items-center justify-between space-y-0 bg-white border-b border-slate-50">
+
+      <Card className="border-[oklch(0.91_0.005_240)] shadow-sm">
+        <CardHeader className="pb-3 flex flex-row items-center justify-between space-y-0 border-b border-slate-100">
           <div className="space-y-1">
-            <CardTitle className="text-xl font-bold text-slate-900 font-heading">Matieres et coefficients</CardTitle>
-            <CardDescription className="text-sm">Configuration pedagogique par niveau</CardDescription>
+            <CardTitle className="text-xl font-bold text-slate-900 font-heading">Coefficients des matieres</CardTitle>
+            <CardDescription className="text-sm">Definissez les matieres et leurs coefficients par niveau</CardDescription>
           </div>
           <div className="flex items-center gap-3">
             <Button 
-              onClick={() => {
-                setFormData({ nom: "", code: "", cycle: "tous", groupe: "", coefficients: {} });
-                setIsAddModalOpen(true);
-              }}
-              className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-5 py-2.5 rounded-xl shadow-lg shadow-emerald-900/10 transition-all active:scale-95 flex items-center gap-2"
+              onClick={() => setIsAddModalOpen(true)}
+              className="bg-primary hover:bg-primary/90 text-white font-bold gap-2 rounded-xl"
             >
               <Plus size={18} />
               Ajouter une matiere
             </Button>
+            <Button 
+              variant="outline"
+              onClick={() => onUpdateCoefficients(localSubjects)}
+              disabled={isSaving}
+              className="font-bold border-slate-200 hover:bg-slate-50 gap-2 rounded-xl h-10 px-6"
+            >
+              <Save size={18} className={cn(isSaving && "animate-spin")} />
+              {isSaving ? "Enregistrement..." : "Enregistrer tout"}
+            </Button>
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto overflow-y-visible">
             <Table>
-              <TableHeader className="bg-slate-50/50">
-                <TableRow className="border-slate-100 hover:bg-transparent">
-                  <TableHead className="text-[11px] font-bold uppercase py-4 px-6 text-slate-500">Matiere</TableHead>
-                  <TableHead className="text-[11px] font-bold uppercase text-center text-slate-500">Code</TableHead>
-                  {levels?.map(level => (
-                    <TableHead key={level} className="text-[11px] font-bold uppercase text-center text-slate-500">{level}</TableHead>
+              <TableHeader>
+                <TableRow className="hover:bg-transparent border-slate-100">
+                  <TableHead className="w-[200px] font-bold text-slate-900 px-6">Matiere</TableHead>
+                  <TableHead className="w-[100px] font-bold text-slate-900">Groupe</TableHead>
+                  {levels.map(l => (
+                    <TableHead key={l} className="text-center font-bold text-slate-900">{l}</TableHead>
                   ))}
-                  <TableHead className="text-[11px] font-bold uppercase text-center text-slate-500 px-6">Actions</TableHead>
+                  <TableHead className="w-[120px] text-center font-bold text-slate-900 px-6">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {localSubjects?.map((subject) => (
-                  <TableRow key={subject.id} className="border-slate-50 hover:bg-slate-50/30 transition-colors group">
-                    <TableCell className="py-4 px-6 text-sm font-bold text-slate-900">
-                      {subject.matiere}
-                      <div className="text-[10px] text-slate-400 font-normal mt-0.5">{subject.groupe}</div>
+                {localSubjects.map((subject) => (
+                  <TableRow key={subject.id} className="group hover:bg-slate-50/50 transition-colors border-slate-100">
+                    <TableCell className="font-medium px-6">
+                      <div className="flex flex-col">
+                        <span className="text-slate-900 font-bold">{subject.matiere}</span>
+                        <span className="text-[10px] text-slate-400 font-mono uppercase tracking-tight">{subject.code}</span>
+                      </div>
                     </TableCell>
-                    <TableCell className="text-center">
-                      <span className="inline-flex items-center px-2 py-1 rounded-lg bg-white text-[10px] font-bold text-slate-500 border border-slate-200">
-                        {subject.code}
+                    <TableCell>
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wider">
+                        {subject.groupe}
                       </span>
                     </TableCell>
-                    {levels?.map(level => (
+                    {levels.map(level => (
                       <TableCell key={level} className="text-center">
                         <div className="flex justify-center">
                           <div className={cn(
-                            "h-8 w-8 rounded-lg text-sm font-bold flex items-center justify-center transition-all",
+                            "h-8 w-8 rounded-lg flex items-center justify-center text-xs font-black transition-all",
                             (subject.coefficients?.[level] || 0) > 0 
                               ? "bg-emerald-50 text-emerald-700 border border-emerald-100" 
                               : "bg-slate-50 text-slate-300 border border-slate-100"
@@ -344,61 +307,6 @@ export function PedagogyView({
           </div>
         </CardContent>
       </Card>
-
-      <div className="space-y-4 pt-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-xl font-bold text-slate-900 font-heading">Types de notes</h3>
-            <p className="text-sm text-slate-500">Définir les types d'évaluations et leur pondération par défaut</p>
-          </div>
-          <Button 
-            variant="outline"
-            onClick={() => {
-              setSelectedNoteType(null);
-              setNoteTypeFormData({ label: "", weight: 1, color: "emerald" });
-              setIsNoteTypeModalOpen(true);
-            }}
-            className="font-bold border-slate-200 hover:bg-slate-50 gap-2 rounded-xl"
-          >
-            <Plus size={18} />
-            Ajouter un type
-          </Button>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {localNoteTypes?.map((type) => {
-            const colorMap: Record<string, string> = {
-              "blue": "bg-blue-50 border-blue-100 text-blue-700",
-              "amber": "bg-amber-50 border-amber-100 text-amber-900",
-              "emerald": "bg-emerald-50 border-emerald-100 text-emerald-700",
-              "rose": "bg-rose-50 border-rose-100 text-rose-700",
-              "red": "bg-red-50 border-red-100 text-red-700"
-            };
-            const style = colorMap[type.color] || "bg-white border-slate-200";
-            
-            return (
-              <div key={type.id} className={cn("p-5 rounded-2xl border shadow-sm flex items-center justify-between transition-all hover:shadow-md", style)}>
-                <div className="space-y-1">
-                  <h4 className="text-base font-bold leading-tight">{type.label}</h4>
-                  <div className="flex items-center gap-1.5 opacity-80">
-                    <span className="text-xs font-medium">Poids :</span>
-                    <span className="text-sm font-black tracking-wider">x{type.weight}</span>
-                  </div>
-                </div>
-                <button 
-                  onClick={() => {
-                    setSelectedNoteType(type);
-                    setNoteTypeFormData({ label: type.label, weight: type.weight, color: type.color });
-                    setIsNoteTypeModalOpen(true);
-                  }}
-                  className="p-2 rounded-xl hover:bg-black/5 transition-all"
-                >
-                  <Edit2 size={18} />
-                </button>
-              </div>
-            );
-          })}
-        </div>
-      </div>
 
       <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
         <DialogContent className="sm:max-w-[550px] rounded-3xl p-8">
@@ -503,6 +411,7 @@ export function PedagogyView({
           </form>
         </DialogContent>
       </Dialog>
+
       <Dialog open={isCoefModalOpen} onOpenChange={setIsCoefModalOpen}>
         <DialogContent className="sm:max-w-[600px] rounded-3xl p-8">
           <DialogHeader>
@@ -526,21 +435,6 @@ export function PedagogyView({
               ))}
             </div>
 
-            <div className="bg-slate-50/50 p-6 rounded-2xl border border-slate-100 flex items-center justify-between">
-              <span className="text-sm font-medium text-slate-500 italic">Apercu :</span>
-              <div className="flex gap-2">
-                {levels?.map(l => (
-                  <div key={l} className="h-8 w-8 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-bold flex items-center justify-center border border-emerald-100">
-                    {selectedSubject?.coefficients?.[l] || 0}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <p className="text-[11px] text-slate-400 text-center leading-relaxed max-w-sm mx-auto">
-              Entrez 0 pour desactiver la matiere a un niveau donne. Les coefficients sont utilises pour le calcul des moyennes trimestrielles et annuelles.
-            </p>
-
             <DialogFooter className="gap-2 pt-4">
               <Button type="button" variant="ghost" onClick={() => setIsCoefModalOpen(false)} className="rounded-xl px-8 font-bold">Annuler</Button>
               <Button onClick={handleCoefSave} className="bg-emerald-700 text-white hover:bg-emerald-800 rounded-xl px-10 font-bold flex items-center gap-2 shadow-lg shadow-emerald-900/10 transition-all active:scale-95">
@@ -561,65 +455,6 @@ export function PedagogyView({
             <Button variant="outline" className="flex-1" onClick={() => setIsDeleteModalOpen(false)}>Annuler</Button>
             <Button variant="destructive" className="flex-1" onClick={handleDeleteConfirm}>Supprimer</Button>
           </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={isNoteTypeModalOpen} onOpenChange={setIsNoteTypeModalOpen}>
-        <DialogContent className="sm:max-w-[500px] rounded-3xl p-8">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-black text-slate-900">
-              {selectedNoteType ? "Modifier le type de note" : "Ajouter un type de note"}
-            </DialogTitle>
-            <DialogDescription className="text-slate-500">Définissez un type d'évaluation et sa pondération</DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleNoteTypeSubmit} className="space-y-6 pt-4">
-            <div className="space-y-2">
-              <Label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Nom du type</Label>
-              <Input 
-                placeholder="Ex: Devoir Surveillé (DS)" 
-                value={noteTypeFormData.label} 
-                onChange={e => setNoteTypeFormData({...noteTypeFormData, label: e.target.value})} 
-                className="rounded-xl border-slate-200 py-6 text-lg focus:ring-emerald-500" 
-                required 
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Poids (coefficient multiplicateur)</Label>
-              <Input 
-                type="number"
-                min="1"
-                max="10"
-                value={noteTypeFormData.weight} 
-                onChange={e => setNoteTypeFormData({...noteTypeFormData, weight: parseInt(e.target.value) || 1})} 
-                className="rounded-xl border-slate-200 py-6 text-lg focus:ring-emerald-500" 
-                required 
-              />
-              <p className="text-[11px] text-slate-400">Ex: x2 signifie que cette note compte double</p>
-            </div>
-
-            <div className="space-y-2">
-              <Label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Couleur</Label>
-              <Select value={noteTypeFormData.color} onValueChange={(v: any) => setNoteTypeFormData({...noteTypeFormData, color: v})}>
-                <SelectTrigger className="rounded-xl border-slate-200 py-6">
-                  <SelectValue placeholder="Choisir une couleur..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="emerald">Vert (défaut)</SelectItem>
-                  <SelectItem value="amber">Jaune / Ambre</SelectItem>
-                  <SelectItem value="blue">Bleu</SelectItem>
-                  <SelectItem value="red">Rouge</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <DialogFooter className="gap-3 pt-4">
-              <Button type="button" variant="ghost" onClick={() => setIsNoteTypeModalOpen(false)} className="rounded-xl px-8 font-bold border border-slate-100 h-12">Annuler</Button>
-              <Button type="submit" className="bg-emerald-400 hover:bg-emerald-500 text-white rounded-xl px-10 font-bold h-12 shadow-lg shadow-emerald-900/10 transition-all active:scale-95">
-                {selectedNoteType ? "Modifier" : "Ajouter"}
-              </Button>
-            </DialogFooter>
-          </form>
         </DialogContent>
       </Dialog>
     </div>
