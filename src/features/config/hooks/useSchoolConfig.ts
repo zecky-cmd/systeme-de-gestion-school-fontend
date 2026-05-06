@@ -48,8 +48,8 @@ export function useSchoolConfig() {
     }
   });
 
-  const handleInputChange = (field: keyof SchoolConfig, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const handleInputChange = (data: Partial<SchoolConfig>) => {
+    setFormData(prev => ({ ...prev, ...data }));
   };
 
   const handleSave = () => {
