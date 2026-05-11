@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { UserManagementService } from "@/services/user-management.service";
+import { UserManagementService, ConfigUser } from "@/services/user-management.service";
 import { toast } from "sonner";
 
 export function useUserManagement() {
@@ -7,30 +7,46 @@ export function useUserManagement() {
 
   const { data: users = [], isLoading: isLoadingUsers } = useQuery({
     queryKey: ["config-users"],
-    queryFn: UserManagementService.getUsers
+    queryFn: () => UserManagementService.getUsers()
   });
 
-  const { data: permissions = [], isLoading: isLoadingPerms } = useQuery({
-    queryKey: ["config-permissions"],
-    queryFn: UserManagementService.getPermissions
-  });
+  const permissions = UserManagementService.getPermissions();
 
-  const updatePermMutation = useMutation({
-    mutationFn: ({ func, role, value }: { func: string; role: string; value: boolean }) => 
-      UserManagementService.updatePermission(func, role, value),
+  const createUserMutation = useMutation({
+    mutationFn: (data: Partial<ConfigUser>) => UserManagementService.createUser(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["config-permissions"] });
+      queryClient.invalidateQueries({ queryKey: ["config-users"] });
+      toast.success("Utilisateur créé avec succès");
     },
-    onError: () => {
-      toast.error("Erreur lors de la mise à jour de la permission");
-    }
+    onError: () => toast.error("Erreur lors de la création de l'utilisateur")
+  });
+
+  const updateUserMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: Partial<ConfigUser> }) => 
+      UserManagementService.updateUser(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["config-users"] });
+      toast.success("Utilisateur mis à jour");
+    },
+    onError: () => toast.error("Erreur lors de la mise à jour")
+  });
+
+  const deleteUserMutation = useMutation({
+    mutationFn: (id: number) => UserManagementService.deleteUser(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["config-users"] });
+      toast.success("Utilisateur supprimé");
+    },
+    onError: () => toast.error("Erreur lors de la suppression")
   });
 
   return {
     users,
     permissions,
-    isLoading: isLoadingUsers || isLoadingPerms,
-    togglePermission: (func: string, role: string, value: boolean) => 
-      updatePermMutation.mutate({ func, role, value })
+    isLoading: isLoadingUsers,
+    isSaving: createUserMutation.isPending || updateUserMutation.isPending || deleteUserMutation.isPending,
+    createUser: createUserMutation.mutate,
+    updateUser: (id: number, data: Partial<ConfigUser>) => updateUserMutation.mutate({ id, data }),
+    deleteUser: deleteUserMutation.mutate
   };
 }

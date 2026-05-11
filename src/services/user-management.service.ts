@@ -3,30 +3,71 @@ import api from "@/lib/axios";
 export interface ConfigUser {
   id: number;
   nom: string;
+  prenom?: string;
   email: string;
-  role: string;
-  statut: "Actif" | "Inactif";
-  dernierAcces: string;
+  role: "adm" | "dir" | "ens" | "par" | "elv";
+  estActif?: boolean;
+  password?: string; // Ajouté pour la gestion de la création
   avatarUrl?: string;
 }
 
 export interface PermissionRow {
   fonctionnalite: string;
-  roles: Record<string, boolean>; // ex: { "Directeur": true, "Secretaire": true, ... }
+  roles: Record<string, boolean>; 
 }
 
 export const UserManagementService = {
-  getUsers: async (): Promise<ConfigUser[]> => {
-    const response = await api.get("/config/users");
+  getUsers: async (role?: string): Promise<ConfigUser[]> => {
+    const response = await api.get("/users", { params: { role } });
+    const data = response.data;
+    if (Array.isArray(data)) return data;
+    if (data && typeof data === 'object' && Array.isArray(data.data)) return data.data;
+    return [];
+  },
+
+  createUser: async (data: Partial<ConfigUser & { password?: string }>): Promise<ConfigUser> => {
+    const createData = {
+      email: data.email,
+      password: data.password || "Password123!", // Mot de passe par défaut si non fourni
+      nom: data.nom,
+      prenom: data.prenom,
+      role: data.role,
+      estActif: data.estActif ?? true
+    };
+    const response = await api.post("/users", createData);
     return response.data;
   },
 
-  getPermissions: async (): Promise<PermissionRow[]> => {
-    const response = await api.get("/config/permissions");
+  updateUser: async (id: number, data: Partial<ConfigUser>): Promise<ConfigUser> => {
+    // On ne garde que les champs strictement acceptés par le modèle Prisma du backend
+    const updateData = {
+      email: data.email,
+      nom: data.nom,
+      prenom: data.prenom,
+      role: data.role,
+      estActif: data.estActif
+    };
+
+    // On supprime les champs undefined pour éviter d'écraser des données par erreur
+    Object.keys(updateData).forEach(key => 
+      (updateData as any)[key] === undefined && delete (updateData as any)[key]
+    );
+
+    const response = await api.put(`/users/${id}`, updateData);
     return response.data;
   },
 
-  updatePermission: async (fonctionnalite: string, role: string, value: boolean): Promise<void> => {
-    await api.patch("/config/permissions", { fonctionnalite, role, value });
+  deleteUser: async (id: number): Promise<void> => {
+    await api.delete(`/users/${id}`);
+  },
+
+  getPermissions: (): PermissionRow[] => {
+    return [
+      { fonctionnalite: "Gestion des utilisateurs", roles: { "adm": true, "dir": true, "ens": false, "par": false, "elv": false } },
+      { fonctionnalite: "Configuration école", roles: { "adm": true, "dir": true, "ens": false, "par": false, "elv": false } },
+      { fonctionnalite: "Saisie des notes (Ownership)", roles: { "adm": true, "dir": true, "ens": true, "par": false, "elv": false } },
+      { fonctionnalite: "Consultation des notes (Soi/Enfant)", roles: { "adm": true, "dir": true, "ens": true, "par": true, "elv": true } },
+      { fonctionnalite: "Gestion financière", roles: { "adm": true, "dir": true, "ens": false, "par": false, "elv": false } },
+    ];
   }
 };

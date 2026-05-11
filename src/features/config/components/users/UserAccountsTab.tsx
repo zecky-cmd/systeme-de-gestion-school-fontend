@@ -1,117 +1,152 @@
 import React from "react";
-import { Search, Plus, Edit2, Lock } from "lucide-react";
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow 
-} from "@/components/ui/table";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+  Search, 
+  UserPlus, 
+  Edit2, 
+  Trash2, 
+  User as UserIcon,
+  Shield,
+  GraduationCap,
+  Users as UsersIcon,
+  Baby
+} from "lucide-react";
 import { ConfigUser } from "@/services/user-management.service";
-import { ROLE_LABELS } from "./useUserManagementView";
+import { Badge } from "@/components/ui/badge";
 
 interface UserAccountsTabProps {
   users: ConfigUser[];
   searchQuery: string;
-  onSearchChange: (val: string) => void;
+  onSearchChange: (query: string) => void;
   onAddClick: () => void;
   onEditClick: (user: ConfigUser) => void;
+  onDeleteClick: (id: number) => void;
 }
 
-export function UserAccountsTab({
-  users,
-  searchQuery,
-  onSearchChange,
-  onAddClick,
-  onEditClick
+export function UserAccountsTab({ 
+  users, 
+  searchQuery, 
+  onSearchChange, 
+  onAddClick, 
+  onEditClick,
+  onDeleteClick
 }: UserAccountsTabProps) {
+  
+  const getRoleInfo = (role: string) => {
+    switch (role) {
+      case "adm": return { label: "Admin", color: "bg-red-100 text-red-700", icon: Shield };
+      case "dir": return { label: "Directeur", color: "bg-purple-100 text-purple-700", icon: UserIcon };
+      case "ens": return { label: "Enseignant", color: "bg-blue-100 text-blue-700", icon: GraduationCap };
+      case "par": return { label: "Parent", color: "bg-orange-100 text-orange-700", icon: Baby };
+      case "elv": return { label: "Élève", color: "bg-green-100 text-green-700", icon: UsersIcon };
+      default: return { label: role, color: "bg-slate-100 text-slate-700", icon: UserIcon };
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-4">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
           <Input 
             placeholder="Rechercher un utilisateur..." 
+            className="pl-10 bg-white border-slate-200 focus:ring-primary/20"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-10 rounded-xl border-slate-200 h-11 bg-white shadow-sm"
           />
         </div>
-        <Button 
-          onClick={onAddClick}
-          className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold gap-2 rounded-xl h-11 px-6 shadow-lg shadow-emerald-900/10 transition-all active:scale-95"
-        >
-          <Plus size={20} /> Nouvel utilisateur
+        <Button onClick={onAddClick} className="bg-primary hover:bg-primary/90 text-white gap-2 shadow-sm">
+          <UserPlus size={18} />
+          Nouvel Utilisateur
         </Button>
       </div>
 
-      <div className="rounded-2xl border border-slate-100 bg-white overflow-hidden shadow-sm">
+      <div className="rounded-xl border border-slate-200 bg-white overflow-hidden shadow-sm">
         <Table>
-          <TableHeader>
-            <TableRow className="bg-slate-50/50 hover:bg-slate-50/50 border-slate-100">
-              <TableHead className="font-bold text-slate-900 px-6 h-12 text-xs uppercase tracking-wider">Utilisateur</TableHead>
-              <TableHead className="font-bold text-slate-900 h-12 text-xs uppercase tracking-wider">Email</TableHead>
-              <TableHead className="font-bold text-slate-900 h-12 text-xs uppercase tracking-wider">Rôle</TableHead>
-              <TableHead className="font-bold text-slate-900 h-12 text-xs uppercase tracking-wider">Statut</TableHead>
-              <TableHead className="font-bold text-slate-900 h-12 text-xs uppercase tracking-wider text-right px-6">Actions</TableHead>
+          <TableHeader className="bg-slate-50/50">
+            <TableRow>
+              <TableHead className="font-semibold text-slate-700">Utilisateur</TableHead>
+              <TableHead className="font-semibold text-slate-700">Email</TableHead>
+              <TableHead className="font-semibold text-slate-700">Rôle</TableHead>
+              <TableHead className="font-semibold text-slate-700">Statut</TableHead>
+              <TableHead className="text-right font-semibold text-slate-700">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {users.map((user) => (
-              <TableRow key={user.id} className="group hover:bg-slate-50/50 transition-colors border-slate-100">
-                <TableCell className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-10 w-10 border-2 border-white shadow-sm ring-1 ring-slate-100">
-                      <AvatarImage src={user.avatarUrl} />
-                      <AvatarFallback className="bg-emerald-50 text-emerald-700 font-bold">
-                        {user.nom.substring(0, 2).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-bold text-slate-900">{user.nom}</span>
-                      <span className="text-[10px] text-slate-400 font-medium">Dernier accès: {user.dernierAcces}</span>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell className="text-sm text-slate-600 font-medium">{user.email}</TableCell>
-                <TableCell>
-                  <Badge variant="outline" className="rounded-md border-slate-200 bg-slate-50 text-slate-600 text-[10px] font-bold px-2 py-0.5">
-                    {ROLE_LABELS[user.role] || user.role}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1.5">
-                    <div className={`h-1.5 w-1.5 rounded-full ${user.statut === 'Actif' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]' : 'bg-slate-300'}`} />
-                    <span className="text-xs font-bold text-slate-700">{user.statut}</span>
-                  </div>
-                </TableCell>
-                <TableCell className="text-right px-6">
-                  <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-8 w-8 rounded-lg text-slate-400 hover:text-emerald-600 hover:bg-emerald-50"
-                      onClick={() => onEditClick(user)}
-                    >
-                      <Edit2 size={14} />
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-8 w-8 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50"
-                    >
-                      <Lock size={14} />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-            {users.length === 0 && (
+            {users.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="h-32 text-center text-slate-400 font-medium">
+                <TableCell colSpan={4} className="h-32 text-center text-slate-500">
                   Aucun utilisateur trouvé
                 </TableCell>
               </TableRow>
+            ) : (
+              users.map((user) => {
+                const roleInfo = getRoleInfo(user.role);
+                const Icon = roleInfo.icon;
+                return (
+                  <TableRow key={user.id} className="hover:bg-slate-50/50 transition-colors group">
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <div className="h-9 w-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 border border-slate-200">
+                          {user.avatarUrl ? (
+                            <img src={user.avatarUrl} alt="" className="h-full w-full rounded-full object-cover" />
+                          ) : (
+                            <UserIcon size={18} />
+                          )}
+                        </div>
+                        <span className="font-medium text-slate-900">{user.nom} {user.prenom}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-slate-600">{user.email}</TableCell>
+                    <TableCell>
+                      <Badge className={`${roleInfo.color} border-none font-medium flex items-center gap-1 w-fit shadow-none`}>
+                        <Icon size={12} />
+                        {roleInfo.label}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {user.estActif !== false ? (
+                        <Badge className="bg-green-100 text-green-700 hover:bg-green-100 border-none shadow-none font-medium">
+                          Actif
+                        </Badge>
+                      ) : (
+                        <Badge className="bg-red-100 text-red-700 hover:bg-red-100 border-none shadow-none font-medium">
+                          Inactif
+                        </Badge>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={() => onEditClick(user)} 
+                          className="h-8 w-8 text-slate-400 hover:text-primary hover:bg-primary/10"
+                        >
+                          <Edit2 size={14} />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={() => onDeleteClick(user.id)}
+                          className="h-8 w-8 text-slate-400 hover:text-red-500 hover:bg-red-50"
+                        >
+                          <Trash2 size={14} />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
             )}
           </TableBody>
         </Table>
