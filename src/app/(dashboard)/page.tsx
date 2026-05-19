@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { DashboardService } from "@/services/dashboard.service";
@@ -108,4 +107,3 @@ export default function Home() {
     </motion.div>
   );
 }
-
