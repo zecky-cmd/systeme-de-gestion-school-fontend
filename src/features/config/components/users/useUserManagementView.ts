@@ -8,6 +8,7 @@ interface UseUserManagementViewProps {
 export function useUserManagementView({ users }: UseUserManagementViewProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<ConfigUser | null>(null);
 
   const filteredUsers = useMemo(() => {
@@ -28,8 +29,13 @@ export function useUserManagementView({ users }: UseUserManagementViewProps) {
       setSelectedUser(user);
       setIsUserModalOpen(true);
     },
+    openDeleteConfirm: (user: ConfigUser) => {
+      setSelectedUser(user);
+      setIsDeleteModalOpen(true);
+    },
     closeModals: () => {
       setIsUserModalOpen(false);
+      setIsDeleteModalOpen(false);
       setSelectedUser(null);
     }
   };
@@ -39,6 +45,7 @@ export function useUserManagementView({ users }: UseUserManagementViewProps) {
     setSearchQuery,
     filteredUsers,
     isUserModalOpen,
+    isDeleteModalOpen,
     selectedUser,
     handlers
   };

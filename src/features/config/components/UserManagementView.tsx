@@ -6,6 +6,7 @@ import { useUserManagementView } from "./users/useUserManagementView";
 import { UserAccountsTab } from "./users/UserAccountsTab";
 import { PermissionsMatrixTab } from "./users/PermissionsMatrixTab";
 import { UserModal } from "./users/modals/UserModal";
+import { DeleteConfirmModal } from "./users/modals/DeleteConfirmModal";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function UserManagementView() {
@@ -23,6 +24,7 @@ export function UserManagementView() {
     setSearchQuery,
     filteredUsers,
     isUserModalOpen,
+    isDeleteModalOpen,
     selectedUser,
     handlers
   } = useUserManagementView({ users });
@@ -32,6 +34,13 @@ export function UserManagementView() {
       updateUser(selectedUser.id, data);
     } else {
       createUser(data);
+    }
+    handlers.closeModals();
+  };
+
+  const handleDeleteConfirm = () => {
+    if (selectedUser?.id) {
+      deleteUser(selectedUser.id);
     }
     handlers.closeModals();
   };
@@ -74,7 +83,7 @@ export function UserManagementView() {
             onSearchChange={setSearchQuery}
             onAddClick={handlers.openAddUser}
             onEditClick={handlers.openEditUser}
-            onDeleteClick={deleteUser}
+            onDeleteClick={handlers.openDeleteConfirm}
           />
         </TabsContent>
 
@@ -88,6 +97,13 @@ export function UserManagementView() {
         onClose={handlers.closeModals}
         onSubmit={handleUserSubmit}
         user={selectedUser}
+      />
+
+      <DeleteConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={handlers.closeModals}
+        onConfirm={handleDeleteConfirm}
+        userName={selectedUser ? `${selectedUser.nom} ${selectedUser.prenom}` : undefined}
       />
     </div>
   );

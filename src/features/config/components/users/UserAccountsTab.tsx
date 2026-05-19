@@ -18,10 +18,21 @@ import {
   Shield,
   GraduationCap,
   Users as UsersIcon,
-  Baby
+  Baby,
+  MoreHorizontal,
+  Eye,
+  CreditCard,
+  FileText
 } from "lucide-react";
 import { ConfigUser } from "@/services/user-management.service";
 import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface UserAccountsTabProps {
   users: ConfigUser[];
@@ -29,7 +40,7 @@ interface UserAccountsTabProps {
   onSearchChange: (query: string) => void;
   onAddClick: () => void;
   onEditClick: (user: ConfigUser) => void;
-  onDeleteClick: (id: number) => void;
+  onDeleteClick: (user: ConfigUser) => void;
 }
 
 export function UserAccountsTab({ 
@@ -125,24 +136,27 @@ export function UserAccountsTab({
                       )}
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          onClick={() => onEditClick(user)} 
-                          className="h-8 w-8 text-slate-400 hover:text-primary hover:bg-primary/10"
-                        >
-                          <Edit2 size={14} />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          onClick={() => onDeleteClick(user.id)}
-                          className="h-8 w-8 text-slate-400 hover:text-red-500 hover:bg-red-50"
-                        >
-                          <Trash2 size={14} />
-                        </Button>
-                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger className="inline-flex h-8 w-8 items-center justify-center rounded-md border-none bg-transparent p-0 text-slate-500 hover:bg-slate-100 opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100 focus:outline-none cursor-pointer ml-auto">
+                          <span className="sr-only">Ouvrir le menu</span>
+                          <MoreHorizontal className="h-4 w-4" />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-56 p-2 rounded-xl">
+                          <DropdownMenuItem className="cursor-pointer gap-3 text-slate-700 font-medium py-2">
+                            <Eye className="h-4 w-4 text-slate-500" />
+                            <span>Voir le profil</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="cursor-pointer gap-3 text-slate-700 font-medium py-2" onClick={() => onEditClick(user)}>
+                            <Edit2 className="h-4 w-4 text-slate-500" />
+                            <span>Modifier</span>
+                          </DropdownMenuItem>       
+                          <DropdownMenuSeparator className="my-1" />
+                          <DropdownMenuItem className="cursor-pointer gap-3 text-red-600 font-medium focus:text-red-600 focus:bg-red-50 py-2" onClick={() => onDeleteClick(user)}>
+                            <Trash2 className="h-4 w-4" />
+                            <span>Supprimer</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 );
