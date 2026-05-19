@@ -9,6 +9,7 @@ export function useUserManagementView({ users }: UseUserManagementViewProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedProfileId, setSelectedProfileId] = useState<number | undefined>(undefined);
   const [selectedUser, setSelectedUser] = useState<ConfigUser | null>(null);
 
   const filteredUsers = useMemo(() => {
@@ -33,9 +34,13 @@ export function useUserManagementView({ users }: UseUserManagementViewProps) {
       setSelectedUser(user);
       setIsDeleteModalOpen(true);
     },
+    openUserProfile: (user: ConfigUser) => {
+      setSelectedProfileId(user.id);
+    },
     closeModals: () => {
       setIsUserModalOpen(false);
       setIsDeleteModalOpen(false);
+      setSelectedProfileId(undefined);
       setSelectedUser(null);
     }
   };
@@ -46,6 +51,7 @@ export function useUserManagementView({ users }: UseUserManagementViewProps) {
     filteredUsers,
     isUserModalOpen,
     isDeleteModalOpen,
+    selectedProfileId,
     selectedUser,
     handlers
   };

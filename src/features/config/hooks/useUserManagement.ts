@@ -50,3 +50,11 @@ export function useUserManagement() {
     deleteUser: deleteUserMutation.mutate
   };
 }
+
+export function useUserById(id?: number) {
+  return useQuery({
+    queryKey: ["config-user-detail", id],
+    queryFn: () => UserManagementService.getUserById(id!),
+    enabled: !!id,
+  });
+}

@@ -1,12 +1,13 @@
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Users, ShieldCheck, Info } from "lucide-react";
-import { useUserManagement } from "../hooks/useUserManagement";
+import { useUserManagement, useUserById } from "../hooks/useUserManagement";
 import { useUserManagementView } from "./users/useUserManagementView";
 import { UserAccountsTab } from "./users/UserAccountsTab";
 import { PermissionsMatrixTab } from "./users/PermissionsMatrixTab";
 import { UserModal } from "./users/modals/UserModal";
 import { DeleteConfirmModal } from "./users/modals/DeleteConfirmModal";
+import { UserProfileModal } from "./users/modals/UserProfileModal";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function UserManagementView() {
@@ -25,9 +26,13 @@ export function UserManagementView() {
     filteredUsers,
     isUserModalOpen,
     isDeleteModalOpen,
+    selectedProfileId,
     selectedUser,
     handlers
   } = useUserManagementView({ users });
+
+  // Consommation dynamique de l'API unitaire (getUserById) via notre hook React Query
+  const { data: detailedUser, isLoading: isLoadingProfile } = useUserById(selectedProfileId);
 
   const handleUserSubmit = (data: any) => {
     if (selectedUser?.id) {
@@ -84,6 +89,7 @@ export function UserManagementView() {
             onAddClick={handlers.openAddUser}
             onEditClick={handlers.openEditUser}
             onDeleteClick={handlers.openDeleteConfirm}
+            onViewProfileClick={handlers.openUserProfile}
           />
         </TabsContent>
 
@@ -104,6 +110,13 @@ export function UserManagementView() {
         onClose={handlers.closeModals}
         onConfirm={handleDeleteConfirm}
         userName={selectedUser ? `${selectedUser.nom} ${selectedUser.prenom}` : undefined}
+      />
+
+      <UserProfileModal
+        isOpen={!!selectedProfileId}
+        onClose={handlers.closeModals}
+        user={detailedUser || null}
+        isLoading={isLoadingProfile}
       />
     </div>
   );

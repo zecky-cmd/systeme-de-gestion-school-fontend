@@ -41,6 +41,7 @@ interface UserAccountsTabProps {
   onAddClick: () => void;
   onEditClick: (user: ConfigUser) => void;
   onDeleteClick: (user: ConfigUser) => void;
+  onViewProfileClick: (user: ConfigUser) => void;
 }
 
 export function UserAccountsTab({ 
@@ -49,7 +50,8 @@ export function UserAccountsTab({
   onSearchChange, 
   onAddClick, 
   onEditClick,
-  onDeleteClick
+  onDeleteClick,
+  onViewProfileClick
 }: UserAccountsTabProps) {
   
   const getRoleInfo = (role: string) => {
@@ -141,7 +143,7 @@ export function UserAccountsTab({
                           <MoreHorizontal className="h-4 w-4" />
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-40 p-2 rounded-xl">
-                          <DropdownMenuItem className="cursor-pointer gap-3 text-slate-700 font-medium py-2">
+                          <DropdownMenuItem className="cursor-pointer gap-3 text-slate-700 font-medium py-2" onClick={() => onViewProfileClick(user)}>
                             <Eye className="h-4 w-4 text-slate-500" />
                             <span>Voir le profil</span>
                           </DropdownMenuItem>

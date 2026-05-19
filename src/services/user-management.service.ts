@@ -9,6 +9,9 @@ export interface ConfigUser {
   estActif?: boolean;
   password?: string; // Ajouté pour la gestion de la création
   avatarUrl?: string;
+  derniereConnexion?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface PermissionRow {
@@ -59,6 +62,15 @@ export const UserManagementService = {
 
   deleteUser: async (id: number): Promise<void> => {
     await api.delete(`/users/${id}`);
+  },
+
+  getUserById: async (id: number): Promise<ConfigUser> => {
+    const response = await api.get(`/users/${id}`);
+    // Gère le cas où l'API renvoie { message: "...", data: { ... } } comme vu sur la capture
+    if (response.data && response.data.data) {
+      return response.data.data;
+    }
+    return response.data;
   },
 
   getPermissions: (): PermissionRow[] => {
