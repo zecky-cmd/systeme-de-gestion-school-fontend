@@ -137,11 +137,10 @@ export function UserAccountsTab({
                     </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
-                        <DropdownMenuTrigger className="inline-flex h-8 w-8 items-center justify-center rounded-md border-none bg-transparent p-0 text-slate-500 hover:bg-slate-100 opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100 focus:outline-none cursor-pointer ml-auto">
-                          <span className="sr-only">Ouvrir le menu</span>
+                        <DropdownMenuTrigger className="inline-flex h-8 w-8 items-center justify-center rounded-md border-none bg-transparent p-0 text-slate-500 hover:bg-slate-100 focus:outline-none cursor-pointer ml-auto">
                           <MoreHorizontal className="h-4 w-4" />
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-56 p-2 rounded-xl">
+                        <DropdownMenuContent align="end" className="w-40 p-2 rounded-xl">
                           <DropdownMenuItem className="cursor-pointer gap-3 text-slate-700 font-medium py-2">
                             <Eye className="h-4 w-4 text-slate-500" />
                             <span>Voir le profil</span>
