@@ -10,9 +10,17 @@ export interface Eleve {
   lieuNaissance: string;
   nationalite: string;
   photoUrl?: string;
+  statut?: string;
+  paiement?: string;
+  currentClasse?: string;
   classe?: {
     id: number;
     nom: string;
+  };
+  user?: {
+    nom?: string;
+    prenom?: string;
+    photoUrl?: string;
   };
 }
 
