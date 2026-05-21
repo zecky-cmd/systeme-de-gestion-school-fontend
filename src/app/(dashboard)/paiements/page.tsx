@@ -82,19 +82,14 @@ export default function PaiementsPage() {
       animate={{ opacity: 1, y: 0 }}
       className="p-4 lg:p-8 space-y-8 max-w-[1600px] mx-auto flex-1 overflow-y-auto scrollbar-none"
     >
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <PageHeader 
-          title="Finances & Recouvrement" 
-          subtitle="Suivi des encaissements et gestion des frais de scolarité."
-        />
-        <Button 
-          onClick={() => setIsAddOpen(true)}
-          className="rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase text-xs tracking-widest h-12 px-8 shadow-xl shadow-emerald-500/20 group transition-all"
-        >
-          <Plus className="mr-2 h-5 w-5 group-hover:rotate-90 transition-transform" />
-          Nouveau Versement
-        </Button>
-      </div>
+      <PageHeader
+        title={<>Finances & <span className="text-emerald-600">Recouvrement</span></>}
+        subtitle="Suivi des encaissements et gestion des frais de scolarité."
+        actionButton={{
+          label: "NOUVEAU VERSEMENT",
+          onClick: () => setIsAddOpen(true),
+        }}
+      />
 
       <PaymentStats stats={stats} isLoading={isLoading} />
 

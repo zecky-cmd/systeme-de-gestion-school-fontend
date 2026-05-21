@@ -105,20 +105,14 @@ export default function EnseignantsPage() {
       animate={{ opacity: 1, y: 0 }}
       className="p-4 lg:p-8 space-y-6 max-w-[1600px] mx-auto overflow-y-auto flex-1 scrollbar-none"
     >
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <PageHeader 
-          title="Corps Professoral" 
-          subtitle="Gestion des enseignants, de leurs spécialités et de leur statut."
-        />
-        <Button 
-          onClick={handleAdd}
-          className="rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase text-xs tracking-widest h-12 px-8 shadow-xl shadow-emerald-500/20 group transition-all"
-        >
-          <Plus className="mr-2 h-5 w-5 group-hover:rotate-90 transition-transform" />
-          Ajouter un enseignant
-        </Button>
-      </div>
+      <PageHeader
+        title={<>Corps <span className="text-emerald-600">Professoral</span></>}
+        subtitle="Gestion des enseignants, de leurs spécialités et de leur statut."
+        actionButton={{
+          label: "AJOUTER UN ENSEIGNANT",
+          onClick: handleAdd,
+        }}
+      />
 
       {/* Stats */}
       <EnseignantsStats stats={stats} isLoading={isLoading} />

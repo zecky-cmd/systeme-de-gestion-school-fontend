@@ -8,7 +8,7 @@ import { ClasseStats } from "@/features/classes/components/ClasseStats";
 import { ClassesTable } from "@/features/classes/components/ClassesTable";
 import { ClasseFormSheet } from "@/features/classes/components/ClasseFormSheet";
 import { motion, AnimatePresence } from "framer-motion";
-import { ClassesHeader } from "@/features/classes/components/sub-components/ClassesHeader";
+import { PageHeader } from "@/components/shared/PageHeader";
 import { ClassesFilters } from "@/features/classes/components/sub-components/ClassesFilters";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { School, Landmark, LayoutGrid } from "lucide-react";
@@ -80,10 +80,18 @@ export default function ClassesPage() {
       animate={{ opacity: 1, y: 0 }}
       className="p-4 lg:p-8 space-y-6 max-w-[1600px] mx-auto overflow-y-auto flex-1 scrollbar-none"
     >
-      <ClassesHeader 
-        onAdd={handleAdd} 
-        onRefresh={() => refetch()} 
-        isFetching={isFetching} 
+      <PageHeader
+        title={<>Organisation des <span className="text-emerald-600">Classes</span></>}
+        subtitle="Gérez les sections, surveillez le remplissage et optimisez l'affectation des élèves par cycle et niveau."
+        showRefresh
+        onRefresh={() => refetch()}
+        isRefreshing={isFetching}
+        showExport
+        onExport={() => {}}
+        actionButton={{
+          label: "NOUVELLE CLASSE",
+          onClick: handleAdd,
+        }}
       />
 
       <ClasseStats stats={stats} isLoading={isLoading} />

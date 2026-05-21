@@ -27,6 +27,7 @@ import { ActionToolbar } from "@/components/shared/ActionToolbar";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { ActionMenu } from "@/components/shared/ActionMenu";
 import { RoleGuard } from "@/components/auth/RoleGuard";
+import { PageHeader } from "@/components/shared/PageHeader";
 
 import { StudentService, type Eleve } from "@/services/student.service";
 import { AddStudentSheet } from "@/features/students/components/AddStudentSheet";
@@ -122,26 +123,14 @@ export default function GestionElevesPage() {
   return (
     <RoleGuard allowedRoles={["adm", "dir", "ens"]}> {/* Modified RoleGuard */}
       <div className="p-6 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500"> {/* Modified structure */}
-        <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-              Gestion des <span className="text-emerald-600">Élèves</span>
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              Consultez, ajoutez et gérez les fiches des élèves de l'établissement.
-            </p>
-          </div>
-          
-          {canAdd && (
-            <Button 
-              onClick={() => setIsAddSheetOpen(true)}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20 transition-all active:scale-95 h-11 px-6 rounded-xl font-bold flex items-center gap-2"
-            >
-              <Plus size={20} />
-              Nouvelle inscription
-            </Button>
-          )}
-        </header>
+        <PageHeader
+          title={<>Gestion des <span className="text-emerald-600">Élèves</span></>}
+          subtitle="Consultez, ajoutez et gérez les fiches des élèves de l'établissement."
+          actionButton={canAdd ? {
+            label: "NOUVELLE INSCRIPTION",
+            onClick: () => setIsAddSheetOpen(true),
+          } : undefined}
+        />
 
         <ActionToolbar 
           searchPlaceholder="Rechercher par nom, matricule..."
