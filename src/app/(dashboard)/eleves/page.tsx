@@ -121,7 +121,7 @@ export default function GestionElevesPage() {
   const canAdd = user?.role === "adm" || user?.role === "dir";
 
   return (
-    <RoleGuard allowedRoles={["adm", "dir", "ens"]}> {/* Modified RoleGuard */}
+    <RoleGuard allowedRoles={["adm", "dir", "ens"]}> 
       <div className="p-6 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500"> {/* Modified structure */}
         <PageHeader
           title={<>Gestion des <span className="text-emerald-600">Élèves</span></>}

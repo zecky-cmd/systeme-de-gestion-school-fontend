@@ -36,10 +36,10 @@ export function RecentEnrollments({ inscriptions, isLoading }: RecentEnrollments
             <p className="text-[10px] font-bold text-slate-400 uppercase mt-0.5">Nouveaux élèves cette semaine</p>
           </div>
         </div>
-        <button className="text-[10px] font-black uppercase tracking-widest text-blue-600 hover:text-blue-700 transition-colors flex items-center gap-1.5 group">
+        {/* <button className="text-[10px] font-black uppercase tracking-widest text-blue-600 hover:text-blue-700 transition-colors flex items-center gap-1.5 group">
           Tout Voir
           <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-        </button>
+        </button> */}
       </div>
 
       <div className="px-4 pb-4">
