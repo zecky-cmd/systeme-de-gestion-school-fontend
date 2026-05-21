@@ -15,10 +15,6 @@ export function ClassesHeader({ onAdd, onRefresh, isFetching }: ClassesHeaderPro
   return (
     <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
       <div className="space-y-1">
-        <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
-          <LayoutGrid size={18} className="animate-pulse" />
-          <span className="text-[10px] font-black uppercase tracking-[0.2em]">Gestion Académique</span>
-        </div>
         <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
           Organisation des <span className="text-emerald-600">Classes</span>
         </h1>

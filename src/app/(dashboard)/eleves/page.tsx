@@ -122,7 +122,7 @@ export default function GestionElevesPage() {
   return (
     <RoleGuard allowedRoles={["adm", "dir", "ens"]}> {/* Modified RoleGuard */}
       <div className="p-6 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500"> {/* Modified structure */}
-        <header className="flex flex-col md:flex-row md:items-center justify-between gap-4"> {/* Modified structure */}
+        <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
               Gestion des <span className="text-emerald-600">Élèves</span>

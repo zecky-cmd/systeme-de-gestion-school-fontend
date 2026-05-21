@@ -14,7 +14,8 @@ import {
 import Link from "next/link";
 
 import { Checkbox } from "@/components/ui/checkbox";
-import { loginSchema, type LoginFormValues, type User } from "../types";
+import { loginSchema, type LoginFormValues } from "@/types/features/auth/shemas/index";
+import { type User } from "@/types/features/auth/types/index";
 import { AuthContainer } from "./shared/AuthContainer";
 import { AuthCard } from "./shared/AuthCard";
 import { AuthHeader } from "./shared/AuthHeader";

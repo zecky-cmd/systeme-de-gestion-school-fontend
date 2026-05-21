@@ -14,7 +14,7 @@ import {
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
-import { resetPasswordSchema, type ResetPasswordFormValues } from "../types";
+import { resetPasswordSchema, type ResetPasswordFormValues } from "@/types/features/auth/shemas/index";
 import { AuthContainer } from "./shared/AuthContainer";
 import { AuthCard } from "./shared/AuthCard";
 import { AuthHeader } from "./shared/AuthHeader";

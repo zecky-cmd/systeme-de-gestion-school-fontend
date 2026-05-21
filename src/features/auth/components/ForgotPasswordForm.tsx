@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-import { forgotPasswordSchema, type ForgotPasswordFormValues } from "../types";
+import { forgotPasswordSchema, type ForgotPasswordFormValues } from "@/types/features/auth/shemas/index";
 import { AuthContainer } from "./shared/AuthContainer";
 import { AuthCard } from "./shared/AuthCard";
 import { AuthHeader } from "./shared/AuthHeader";

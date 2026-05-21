@@ -4,7 +4,7 @@ import {
   RegisterDto, 
   LoginResponse, 
   RegisterResponse 
-} from "@/features/auth/types";
+} from "@/types/features/auth/types";
 
 export const AuthService = {
   login: async (data: LoginDto): Promise<LoginResponse> => {

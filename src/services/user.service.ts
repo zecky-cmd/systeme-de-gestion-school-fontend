@@ -1,5 +1,5 @@
 import api from "@/lib/axios";
-import { User } from "@/features/auth/types";
+import { User } from "@/types/features/auth/types";
 
 export const UserService = {
   /**

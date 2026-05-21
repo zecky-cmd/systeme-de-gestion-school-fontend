@@ -1,5 +1,5 @@
 import api from "@/lib/axios";
-import { User } from "@/features/auth/types";
+import { User } from "@/types/features/auth/types";
 
 export type TypeContrat = "permanent" | "vacataire";
 
@@ -53,33 +53,22 @@ export interface CreateEnseignantCombinedDto {
 }
 
 export const EnseignantService = {
-  /**
-   * Récupérer tous les enseignants (avec données enrichies)
-   */
+  //  * Récupérer tous les enseignants (avec données enrichies)
   getAll: async (): Promise<Enseignant[]> => {
     const response = await api.get("/enseignant");
     return response.data;
   },
-
-  /**
-   * Récupérer un enseignant par son ID
-   */
+  //  * Récupérer un enseignant par son ID
   getOne: async (id: number): Promise<Enseignant> => {
     const response = await api.get(`/enseignant/${id}`);
     return response.data;
   },
-
-  /**
-   * Récupérer les statistiques par matière
-   */
+  //  * Récupérer les statistiques par matière
   getStatsByMatiere: async (): Promise<MatiereStats[]> => {
     const response = await api.get("/enseignant/stats/matieres");
     return response.data;
   },
-
-  /**
-   * Créer un enseignant (Processus combiné : User + Enseignant)
-   */
+  //  * Créer un enseignant (Processus combiné : User + Enseignant)
   createCombined: async (data: CreateEnseignantCombinedDto): Promise<Enseignant> => {
     // 1. Créer le User
     const userResponse = await api.post("/auth/register", {
@@ -91,7 +80,6 @@ export const EnseignantService = {
     });
 
     const newUser = userResponse.data.user || userResponse.data;
-
     // 2. Créer l'Enseignant lié
     const enseignantResponse = await api.post("/enseignant", {
       userId: newUser.id,
@@ -105,9 +93,7 @@ export const EnseignantService = {
     return enseignantResponse.data;
   },
 
-  /**
-   * Mettre à jour un enseignant (et son User associé)
-   */
+  //  * Mettre à jour un enseignant (et son User associé)
   update: async (id: number, userId: number, data: Partial<CreateEnseignantCombinedDto>): Promise<Enseignant> => {
     // Si des données User sont modifiées
     if (data.nom || data.prenom || data.email) {
@@ -130,9 +116,7 @@ export const EnseignantService = {
     return response.data;
   },
 
-  /**
-   * Supprimer un enseignant
-   */
+  //  * Supprimer un enseignant
   delete: async (id: number): Promise<void> => {
     await api.delete(`/enseignant/${id}`);
   }
