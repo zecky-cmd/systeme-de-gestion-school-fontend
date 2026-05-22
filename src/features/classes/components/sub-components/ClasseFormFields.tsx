@@ -12,7 +12,7 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { Classe, Cycle } from "@/services/classe.service";
-import { ClasseFormValues } from "../../hooks/useClasseForm";
+import { ClasseFormValues } from "@/features/classes/schemas/classe-form.schema";
 
 interface ClasseFormFieldsProps {
   form: UseFormReturn<ClasseFormValues>;
