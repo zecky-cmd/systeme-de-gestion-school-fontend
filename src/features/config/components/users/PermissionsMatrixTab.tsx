@@ -9,12 +9,12 @@ import {
 } from "@/components/ui/table";
 import { PermissionRow } from "@/services/user-management.service";
 import { Check, X, Info } from "lucide-react";
-import { 
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+// import { 
+//   Tooltip,
+//   TooltipContent,
+//   TooltipProvider,
+//   TooltipTrigger,
+// } from "@/components/ui/tooltip";
 
 interface PermissionsMatrixTabProps {
   permissions: PermissionRow[];
@@ -35,7 +35,7 @@ export function PermissionsMatrixTab({ permissions }: PermissionsMatrixTabProps)
       <div className="flex items-center gap-2 p-4 bg-blue-50 text-blue-700 rounded-xl border border-blue-100 text-sm">
         <Info size={18} className="shrink-0" />
         <p>
-          Cette matrice affiche les droits d'accès fixés par le système (RBAC + Ownership). 
+          Cette matrice affiche les droits d'accès fixés par le système. 
           Les permissions sont basées sur le rôle et la possession des données.
         </p>
       </div>
@@ -83,7 +83,7 @@ export function PermissionsMatrixTab({ permissions }: PermissionsMatrixTabProps)
       </div>
       
       <div className="pt-4 text-xs text-slate-500 italic">
-        * Ownership : Certaines permissions (Saisie des notes, Consultation) sont filtrées dynamiquement par le backend selon l'affectation réelle de l'utilisateur.
+        * Certaines permissions (Saisie des notes, Consultation) sont filtrées dynamiquement selon l'affectation réelle de l'utilisateur.
       </div>
     </div>
   );
