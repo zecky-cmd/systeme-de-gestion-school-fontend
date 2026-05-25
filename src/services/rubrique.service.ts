@@ -2,7 +2,7 @@ import api from "@/lib/axios";
 
 export interface Rubrique {
   id: number;
-  nom: string;
+  libelle: string; // The API uses libelle instead of nom
   description?: string;
   montantParDefaut?: number;
   estObligatoire: boolean;
