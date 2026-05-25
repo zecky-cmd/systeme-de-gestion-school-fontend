@@ -75,7 +75,7 @@ export function RubriqueManager() {
           />
         </div>
         <Button 
-          onClick={() => createMutation.mutate({ nom: newRubriqueNom, montantParDefaut: parseFloat(newRubriqueMontant), estObligatoire: true, anneeId: 1 })}
+          onClick={() => createMutation.mutate({ libelle: newRubriqueNom, montantParDefaut: parseFloat(newRubriqueMontant), estObligatoire: true, anneeId: 1 })}
           disabled={!newRubriqueNom || createMutation.isPending}
           className="rounded-xl bg-slate-900 dark:bg-emerald-600 text-white font-bold h-10 px-6 uppercase text-[10px] tracking-widest"
         >
@@ -102,7 +102,7 @@ export function RubriqueManager() {
                     <div className="h-8 w-8 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
                       <Settings2 size={14} className="text-slate-400" />
                     </div>
-                    <span className="font-bold text-sm text-slate-900 dark:text-white uppercase">{r.nom}</span>
+                    <span className="font-bold text-sm text-slate-900 dark:text-white uppercase">{r.libelle}</span>
                   </div>
                 </TableCell>
                 <TableCell>

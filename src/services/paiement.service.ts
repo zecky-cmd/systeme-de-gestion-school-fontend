@@ -19,9 +19,10 @@ export interface Paiement {
     nom: string;
     prenom: string;
     matricule: string;
-    classe?: {
-      id: number;
+    classeNom?: string; // New field from backend
+    user?: {
       nom: string;
+      prenom: string;
     };
   };
   rubrique?: {
