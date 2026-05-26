@@ -237,17 +237,7 @@ export function NewRubricModal({
                     <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
                       Tarifs - {cat.nom}
                     </h4>
-                    {/* {idx === 0 && categories.length > 1 && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleCopyToAll(cat.id)}
-                        className="h-7 text-[10px] text-primary hover:text-primary/90 font-bold border-primary/20 hover:bg-primary/5 rounded-lg px-2 flex items-center gap-1.5 transition-colors"
-                      >
-                        <Copy size={10} /> Copier vers toutes les catégories
-                      </Button>
-                    )} */}
+          
                   </div>
 
                   {/* Level inputs grid */}

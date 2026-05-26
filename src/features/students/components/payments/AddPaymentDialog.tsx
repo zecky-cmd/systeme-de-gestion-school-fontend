@@ -141,7 +141,7 @@ export function AddPaymentDialog({ eleveId, open, onOpenChange }: AddPaymentDial
               </SelectTrigger>
               <SelectContent>
                 {rubriques?.map((r) => (
-                  <SelectItem key={r.id} value={r.id.toString()}>{r.nom}</SelectItem>
+                  <SelectItem key={r.id} value={r.id.toString()}>{r.libelle}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
