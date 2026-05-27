@@ -1,12 +1,3 @@
-/**
- * FinanceView — Coordinateur
- *
- * Rôle unique : assembler les hooks et distribuer props + callbacks
- * vers les composants enfants. Zéro logique métier ici.
- *
- * Règle d'or : si tu ajoutes un `if`, un calcul ou un appel API
- * directement ici, c'est qu'il appartient à un hook.
- */
 
 import React from "react";
 import { useFinance }         from "../hooks/useFinance";
@@ -52,7 +43,6 @@ export function FinanceView() {
   }
 
   // ── Données dérivées partagées entre plusieurs enfants ──────────────────────
-  // (uniquement des lookups simples — pas de logique)
   const activeCategory   = finance.categories.find(c => c.id === state.activeCategoryId);
   const otherCategories  = finance.categories.filter(c => c.id !== state.activeCategoryId);
 
