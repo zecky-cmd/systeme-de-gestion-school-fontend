@@ -53,7 +53,7 @@ const navItems = [
       { title: "Pédagogie", url: "/config/pedagogie" },
       { title: "Frais Scolarité", url: "/config/frais" },
       { title: "Utilisateurs & Rôles", url: "/config/utilisateurs" },
-      { title: "Sécurité", url: "/config/securite" },
+      // { title: "Sécurité", url: "/config/securite" },
     ]
   },
 ]
