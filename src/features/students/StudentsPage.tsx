@@ -69,7 +69,7 @@ export function StudentsPage() {
             canDelete={vm.permissions.canDelete}
           />
         )}
-
+        {/* les options dans action */}
         <StudentSheets
           selectedStudent={vm.sheets.selectedStudent}
           isAddOpen={vm.sheets.isAddOpen}
